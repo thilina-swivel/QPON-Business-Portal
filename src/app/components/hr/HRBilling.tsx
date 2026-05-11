@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   FileText, Download, CreditCard, Mail, Bell,
   Building2, Users, CheckCircle2, Clock, AlertTriangle,
-  AlertCircle, Calendar, Info, FileSpreadsheet, RefreshCw,
-  ReceiptText,
+  AlertCircle, Info, FileSpreadsheet, RefreshCw,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Skeleton } from '../ui/skeleton';
@@ -110,7 +109,7 @@ export function HRBilling({ onNavigate: _onNavigate }: HRBillingProps) {
   // Settings state
   const [paymentMethod, setPaymentMethod] = useState('invoice');
   const [poNumber, setPoNumber]           = useState('');
-  const [invoiceEmail, setInvoiceEmail]   = useState('finance@cinnamonhotels.lk');
+  const [invoiceEmail, setInvoiceEmail]   = useState('finance@axoratech.com');
   const [ccEmail, setCcEmail]             = useState('');
   const [notifyInvoice, setNotifyInvoice] = useState(true);
   const [notifyOverdue, setNotifyOverdue] = useState(true);
@@ -146,7 +145,7 @@ export function HRBilling({ onNavigate: _onNavigate }: HRBillingProps) {
       {/* ── Header ── */}
       <div>
         <h2 className="text-xl font-semibold text-[#0E2250] dark:text-white">Billing</h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400">Cinnamon Hotels &amp; Resorts · Gold Plan · 500 Seats</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">Axora Technologies · Gold Plan · 500 Seats</p>
       </div>
 
       {/* ── Tabs ── */}
@@ -198,35 +197,29 @@ export function HRBilling({ onNavigate: _onNavigate }: HRBillingProps) {
             </div>
           )}
 
-          {/* KPI cards */}
+          {/* KPI cards — minimal */}
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
 
-            <Card className="border-none shadow-lg bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C] overflow-hidden group hover:shadow-xl transition-all duration-300">
-              <CardContent className="p-5 relative">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-amber-50 dark:bg-transparent rounded-full blur-2xl opacity-40 -mr-8 -mt-8 group-hover:opacity-60 transition-opacity" />
-                <div className="mb-3"><div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-400 to-amber-500 shadow-lg w-fit"><Clock className="w-4 h-4 text-white" /></div></div>
-                <p className="text-[10px] font-semibold text-gray-400 dark:text-amber-300/60 uppercase tracking-widest mb-1">Current Month Due</p>
-                <p className="text-2xl font-bold text-[#0E2250] dark:text-white">{fmtShort(currentPending?.total ?? 0)}</p>
-                <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-1 font-medium">Due May 31, 2026</p>
+            <Card className="border border-gray-200 dark:border-[#2A2A2A] shadow-md bg-white dark:bg-[#141414] rounded-xl">
+              <CardContent className="p-4">
+                <p className="text-[10px] font-semibold text-amber-500 uppercase tracking-widest mb-2">Current Month Due</p>
+                <p className="text-xl font-bold text-[#0E2250] dark:text-white">{fmtShort(currentPending?.total ?? 0)}</p>
+                <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">Due May 31, 2026</p>
               </CardContent>
             </Card>
 
-            <Card className="border-none shadow-lg bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C] overflow-hidden group hover:shadow-xl transition-all duration-300">
-              <CardContent className="p-5 relative">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-blue-50 dark:bg-transparent rounded-full blur-2xl opacity-40 -mr-8 -mt-8 group-hover:opacity-60 transition-opacity" />
-                <div className="mb-3"><div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg w-fit"><ReceiptText className="w-4 h-4 text-white" /></div></div>
-                <p className="text-[10px] font-semibold text-gray-400 dark:text-blue-300/60 uppercase tracking-widest mb-1">YTD Spend</p>
-                <p className="text-2xl font-bold text-[#0E2250] dark:text-white">{fmtShort(ytdTotal)}</p>
+            <Card className="border border-gray-200 dark:border-[#2A2A2A] shadow-md bg-white dark:bg-[#141414] rounded-xl">
+              <CardContent className="p-4">
+                <p className="text-[10px] font-semibold text-blue-500 uppercase tracking-widest mb-2">YTD Spend</p>
+                <p className="text-xl font-bold text-[#0E2250] dark:text-white">{fmtShort(ytdTotal)}</p>
                 <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">Jan – May 2026</p>
               </CardContent>
             </Card>
 
-            <Card className="col-span-2 lg:col-span-1 border-none shadow-lg bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C] overflow-hidden group hover:shadow-xl transition-all duration-300">
-              <CardContent className="p-5 relative">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-emerald-50 dark:bg-transparent rounded-full blur-2xl opacity-40 -mr-8 -mt-8 group-hover:opacity-60 transition-opacity" />
-                <div className="mb-3"><div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-lg w-fit"><Calendar className="w-4 h-4 text-white" /></div></div>
-                <p className="text-[10px] font-semibold text-gray-400 dark:text-emerald-300/60 uppercase tracking-widest mb-1">Next Invoice</p>
-                <p className="text-2xl font-bold text-[#0E2250] dark:text-white">Jun 1, 2026</p>
+            <Card className="col-span-2 lg:col-span-1 border border-gray-200 dark:border-[#2A2A2A] shadow-md bg-white dark:bg-[#141414] rounded-xl">
+              <CardContent className="p-4">
+                <p className="text-[10px] font-semibold text-emerald-500 uppercase tracking-widest mb-2">Next Invoice</p>
+                <p className="text-xl font-bold text-[#0E2250] dark:text-white">Jun 1, 2026</p>
                 <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">~{fmtShort(currentPending?.total ?? 0)} estimated</p>
               </CardContent>
             </Card>
@@ -426,10 +419,10 @@ export function HRBilling({ onNavigate: _onNavigate }: HRBillingProps) {
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">{pm.desc}</p>
                     </div>
                     <div className={cn(
-                      'w-4 h-4 rounded-full border-2 flex-shrink-0 mt-1 flex items-center justify-center transition-colors',
-                      isSelected ? 'border-[#E35000] bg-[#E35000]' : 'border-gray-300 dark:border-gray-600'
+                      'w-5 h-5 rounded-full border-2 flex-shrink-0 mt-0.5 flex items-center justify-center transition-all',
+                      isSelected ? 'border-[#E35000]' : 'border-gray-300 dark:border-gray-600'
                     )}>
-                      {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                      {isSelected && <div className="w-[10px] h-[10px] rounded-full bg-[#E35000]" />}
                     </div>
                   </button>
                 );
@@ -541,17 +534,20 @@ export function HRBilling({ onNavigate: _onNavigate }: HRBillingProps) {
                   </div>
                   <button
                     onClick={pref.toggle}
-                    className={cn(
-                      'relative flex-shrink-0 w-10 h-6 rounded-full transition-colors duration-200 mt-0.5',
-                      pref.value ? 'bg-[#E35000]' : 'bg-gray-200 dark:bg-[#2A2A2A]'
-                    )}
                     aria-checked={pref.value}
                     role="switch"
+                    className="relative flex-shrink-0 rounded-full transition-colors duration-200 focus:outline-none mt-0.5"
+                    style={{ width: 44, height: 24, background: pref.value ? '#E35000' : '#D1D5DB' }}
                   >
-                    <span className={cn(
-                      'absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-200',
-                      pref.value ? 'translate-x-5' : 'translate-x-1'
-                    )} />
+                    <span
+                      className="absolute rounded-full bg-white"
+                      style={{
+                        width: 18, height: 18, top: 3, left: 3,
+                        boxShadow: '0 1px 4px rgba(0,0,0,0.25)',
+                        transform: pref.value ? 'translateX(20px)' : 'translateX(0px)',
+                        transition: 'transform 0.2s ease',
+                      }}
+                    />
                   </button>
                 </div>
               ))}

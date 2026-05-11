@@ -4,6 +4,7 @@ import { HRDashboard } from "./components/hr/HRDashboard";
 import { EmployeeManagement } from "./components/hr/EmployeeManagement";
 import { HRAnalytics } from "./components/hr/HRAnalytics";
 import { HRBilling } from "./components/hr/HRBilling";
+import { HRSettings } from "./components/hr/HRSettings";
 import { SignIn } from "./components/auth/SignIn";
 import { SignUp } from "./components/auth/SignUp";
 import { ForgotPassword } from "./components/auth/ForgotPassword";
@@ -74,7 +75,7 @@ export default function App() {
       case "hr-billing":
         return <HRBilling onNavigate={setCurrentView} />;
       case "hr-settings":
-        return <HRDashboard onNavigate={setCurrentView} />;
+        return <HRSettings onNavigate={setCurrentView} />;
       default:
         return <HRDashboard onNavigate={setCurrentView} />;
     }

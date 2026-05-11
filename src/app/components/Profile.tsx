@@ -137,10 +137,10 @@ export function Profile() {
 
   const [profile, setProfile] = useState({
     status: 'Active',
-    email: 'reservations@cinnamongrand.com',
+    email: 'hello@axoratech.com',
     mobile: '+94 77 123 4567',
     joinedDate: '2023-08-15',
-    businessName: 'Cinnamon Grand Colombo',
+    businessName: 'Axora Technologies',
     username: '+94771234567',
     regNo: 'PV 12345',
     category: ['Dining', 'Bar'] as string[], // Changed to array for multiple categories
@@ -155,11 +155,11 @@ export function Profile() {
       { day: 'Saturday', open: '10:00', close: '23:00', isClosed: false },
       { day: 'Sunday', open: '10:00', close: '23:00', isClosed: false }
     ],
-    website: 'https://www.cinnamonhotels.com',
-    facebook: 'cinnamongrand',
-    instagram: 'cinnamongrandcolombo',
-    youtube: 'cinnamongrand',
-    twitter: 'cinnamongrand',
+    website: 'https://www.axoratech.com',
+    facebook: 'axoratech',
+    instagram: 'axoratech',
+    youtube: 'axoratech',
+    twitter: 'axoratech',
     contactPerson: 'Sarah Johnson',
     logo: 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb21wYW55JTIwbG9nb3xlbnwxfHx8fDE3NjQ2NDc4MDN8MA&ixlib=rb-4.1.0&q=80&w=200',
     menu: null as string | null,

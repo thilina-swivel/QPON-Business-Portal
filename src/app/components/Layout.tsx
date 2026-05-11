@@ -43,7 +43,7 @@ export function Layout({ children, currentView, onChangeView, onLogout }: Layout
   };
 
   const merchantData = {
-    name: 'Cinnamon Hotels & Resorts',
+    name: 'Axora Technologies',
     planName: 'Gold Plan · 500 Seats'
   };
 
@@ -366,11 +366,11 @@ export function Layout({ children, currentView, onChangeView, onLogout }: Layout
             variant="ghost"
             size="icon"
             onClick={() => {
-              onChangeView('profile');
+              onChangeView('hr-settings');
               setIsMobileMenuOpen(false);
             }}
             className="rounded-full hover:bg-white/10 transition-colors w-10 h-10 flex items-center justify-center flex-shrink-0"
-            aria-label="View Profile"
+            aria-label="Settings"
           >
             <User className="h-5 w-5 text-white" />
           </Button>
@@ -405,7 +405,7 @@ export function Layout({ children, currentView, onChangeView, onLogout }: Layout
         <Header 
           isDarkMode={isDarkMode}
           onToggleDarkMode={handleToggleDarkMode}
-          onNavigateToProfile={() => onChangeView('profile')}
+          onNavigateToProfile={() => onChangeView('hr-settings')}
           onLogout={onLogout}
           merchantName={merchantData.name}
           planName={merchantData.planName}

@@ -376,7 +376,7 @@ export function HRAnalytics({ onNavigate: _onNavigate }: HRAnalyticsProps) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-semibold text-[#0E2250] dark:text-white">Analytics</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Cinnamon Hotels &amp; Resorts · May 2026</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Axora Technologies · May 2026</p>
         </div>
 
         <div className="relative self-start sm:self-auto">

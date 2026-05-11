@@ -865,7 +865,7 @@ export function Overview({ onNavigate }: OverviewProps) {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h2 className="text-2xl font-bold text-[#0E2250] dark:text-white">Dashboard Overview</h2>
-            <p className="text-gray-500 dark:text-gray-400">Welcome back, Cinnamon Grand Colombo</p>
+            <p className="text-gray-500 dark:text-gray-400">Welcome back, Axora Technologies</p>
           </div>
           <button onClick={cycleDashboardState} className="text-xs px-3 py-1.5 rounded-full bg-gray-200 dark:bg-[#1C1C1C] text-gray-500 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-[#2A2A2A] transition-colors font-medium">
             State: Empty →
@@ -957,7 +957,7 @@ export function Overview({ onNavigate }: OverviewProps) {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-2xl font-bold text-[#0E2250] dark:text-white transition-colors duration-300">Dashboard Overview</h2>
-          <p className="text-gray-500 dark:text-gray-400 transition-colors duration-300">Welcome back, Cinnamon Grand Colombo</p>
+          <p className="text-gray-500 dark:text-gray-400 transition-colors duration-300">Welcome back, Axora Technologies</p>
         </div>
         <div className="flex gap-3 items-center relative">
           {/* Demo state toggle */}

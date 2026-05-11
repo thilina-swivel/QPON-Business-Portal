@@ -242,7 +242,7 @@ export function Header({
             className="cursor-pointer hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-blue-100"
           >
             <User className="mr-2 h-4 w-4" />
-            <span>View Profile</span>
+            <span>Settings</span>
           </DropdownMenuItem>
           {onLogout && (
             <>

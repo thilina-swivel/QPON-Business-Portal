@@ -18,7 +18,7 @@ interface HRDashboardProps {
 
 // ── Demo data ────────────────────────────────────────────────────────────────
 
-const COMPANY = 'Cinnamon Hotels & Resorts';
+const COMPANY = 'Axora Technologies';
 const CURRENT_MONTH = 'May 2026';
 
 const kpiData = {
