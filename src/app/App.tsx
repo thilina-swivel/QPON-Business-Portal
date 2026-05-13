@@ -8,6 +8,7 @@ import { HRSettings } from "./components/hr/HRSettings";
 import { SignIn } from "./components/auth/SignIn";
 import { SignUp } from "./components/auth/SignUp";
 import { ForgotPassword } from "./components/auth/ForgotPassword";
+import { PurchaseSetup } from "./components/auth/PurchaseSetup";
 import { WelcomeVideoModal } from "./components/WelcomeVideoModal";
 import { OnboardingGuide } from "./components/OnboardingGuide";
 import { Toaster } from "./components/ui/sonner";
@@ -22,7 +23,7 @@ export default function App() {
     return storedAuth === "true";
   });
   const [authView, setAuthView] = useState<
-    "signin" | "signup" | "forgotpassword"
+    "signin" | "signup" | "forgotpassword" | "purchase"
   >("signin");
   const [currentView, setCurrentView] = useState("hr-dashboard");
   const [showWelcomeVideo, setShowWelcomeVideo] =
@@ -44,15 +45,14 @@ export default function App() {
           <SignIn
             onSignIn={handleLoginSuccess}
             onNavigateToSignUp={() => setAuthView("signup")}
-            onNavigateToForgotPassword={() =>
-              setAuthView("forgotpassword")
-            }
           />
         ) : authView === "signup" ? (
           <SignUp
-            onSignUp={handleLoginSuccess}
+            onSignUp={() => setAuthView("purchase")}
             onNavigateToSignIn={() => setAuthView("signin")}
           />
+        ) : authView === "purchase" ? (
+          <PurchaseSetup onComplete={handleLoginSuccess} onBack={() => setAuthView("signup")} />
         ) : (
           <ForgotPassword
             onNavigateToSignIn={() => setAuthView("signin")}
@@ -94,6 +94,7 @@ export default function App() {
         currentView={currentView}
         onChangeView={setCurrentView}
         onLogout={handleLogout}
+        onShowGuide={() => setShowWelcomeVideo(true)}
       >
         {renderView()}
       </Layout>

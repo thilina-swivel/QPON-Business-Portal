@@ -245,6 +245,12 @@ export function HRSettings({ onNavigate }: HRSettingsProps) {
   return (
     <div className="max-w-6xl mx-auto pb-20 lg:pb-0 space-y-6">
 
+      {/* ── Page Title ── */}
+      <div>
+        <h2 className="text-2xl font-bold text-[#0E2250] dark:text-white transition-colors duration-300">Settings</h2>
+        <p className="text-gray-500 dark:text-gray-400 transition-colors duration-300">Manage your company profile and preferences</p>
+      </div>
+
       {/* ── Header Card — mirrors Profile.tsx ── */}
       <Card className="border-none shadow-sm bg-white dark:bg-gradient-to-br dark:from-[#0A0A0A] dark:to-[#141414] transition-colors duration-300">
         <CardContent className="p-4 sm:p-6">
@@ -271,7 +277,7 @@ export function HRSettings({ onNavigate }: HRSettingsProps) {
               {/* Name, company, meta */}
               <div className="space-y-2 flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-[#231F20] dark:text-white truncate transition-colors duration-300">
+                  <h2 className="text-xl font-bold text-[#0E2250] dark:text-white truncate transition-colors duration-300">
                     {profile.hrManagerName}
                   </h2>
                   <Badge className={cn(

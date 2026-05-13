@@ -7,7 +7,7 @@ import {
   TrendingUp, Download, FileText, Users,
   ChevronDown, ChevronUp, Medal,
   CheckCircle2, Utensils, Fuel, ShoppingCart, Pill, ShoppingBag,
-  ArrowUpRight, Wallet, BarChart3, Info,
+  Wallet, BarChart3, Info,
   CalendarDays, ChevronLeft, ChevronRight, FileSpreadsheet,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
@@ -116,7 +116,6 @@ const fmtShort = (n: number) => {
 };
 const fmtFull = (n: number) => `LKR ${n.toLocaleString('en-LK')}`;
 
-const DEMO_NOW = new Date(2026, 4, 1);
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 
@@ -154,7 +153,7 @@ export function HRAnalytics({ onNavigate: _onNavigate }: HRAnalyticsProps) {
   useEffect(() => { setMounted(true); }, []);
 
   // ── Date picker state ──
-  const [dateRange, setDateRange]                 = useState('last12months');
+  const [dateRange, setDateRange]                 = useState('thismonth');
   const [showDatePicker, setShowDatePicker]       = useState(false);
   const [currentMonth, setCurrentMonth]           = useState(new Date().getMonth());
   const [currentYear, setCurrentYear]             = useState(new Date().getFullYear());
@@ -176,13 +175,13 @@ export function HRAnalytics({ onNavigate: _onNavigate }: HRAnalyticsProps) {
       return selectedEndDate ? `${fmt(selectedStartDate)} – ${fmt(selectedEndDate)}` : fmt(selectedStartDate);
     }
     const labels: Record<string, string> = {
+      thismonth:    'This Month',
       last3months:  'Last 3 Months',
       last6months:  'Last 6 Months',
       last12months: 'Last 12 Months',
-      thisyear:     'This Year',
       custom:       'Custom Range',
     };
-    return labels[dateRange] ?? 'Last 12 Months';
+    return labels[dateRange] ?? 'This Month';
   };
 
   const handlePresetSelect = (preset: string) => {
@@ -286,31 +285,14 @@ export function HRAnalytics({ onNavigate: _onNavigate }: HRAnalyticsProps) {
     );
   };
 
-  // ── Filter monthly data ──
-  const filterMonthly = <T extends { date: Date }>(data: T[]): T[] => {
-    if (dateRange === 'custom' && selectedStartDate) {
-      const end = selectedEndDate ?? selectedStartDate;
-      return data.filter(d => d.date >= selectedStartDate && d.date <= end);
-    }
-    if (dateRange === 'thisyear') {
-      const ys = new Date(DEMO_NOW.getFullYear(), 0, 1);
-      return data.filter(d => d.date >= ys);
-    }
-    const months = dateRange === 'last3months' ? 3 : dateRange === 'last6months' ? 6 : 12;
-    const cutoff = new Date(DEMO_NOW.getFullYear(), DEMO_NOW.getMonth() - months + 1, 1);
-    return data.filter(d => d.date >= cutoff);
-  };
-
-  const filteredTrend      = useMemo(() => filterMonthly(TREND_DATA),       [dateRange, selectedStartDate, selectedEndDate]);
-  const filteredActivation = useMemo(() => filterMonthly(ACTIVATION_TREND), [dateRange, selectedStartDate, selectedEndDate]);
-  const filteredRedemption = useMemo(() => filterMonthly(REDEMPTION_TREND), [dateRange, selectedStartDate, selectedEndDate]);
-
-  const combinedTrend = useMemo(() => filteredTrend.map((t, i) => ({
+  // Charts always show full 12-month data regardless of the date picker selection
+  const chartTrend = TREND_DATA;
+  const combinedChartTrend = TREND_DATA.map((t, i) => ({
     label:      t.label,
     savings:    t.savings,
-    activation: filteredActivation[i]?.rate ?? null,
-    redemption: filteredRedemption[i]?.rate ?? null,
-  })), [filteredTrend, filteredActivation, filteredRedemption]);
+    activation: ACTIVATION_TREND[i]?.rate ?? null,
+    redemption: REDEMPTION_TREND[i]?.rate ?? null,
+  }));
 
   // ── Tooltip style ──
   const ttStyle = {
@@ -375,8 +357,8 @@ export function HRAnalytics({ onNavigate: _onNavigate }: HRAnalyticsProps) {
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-semibold text-[#0E2250] dark:text-white">Analytics</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Axora Technologies · May 2026</p>
+          <h2 className="text-2xl font-bold text-[#0E2250] dark:text-white transition-colors duration-300">Analytics</h2>
+          <p className="text-gray-500 dark:text-gray-400 transition-colors duration-300">Axora Technologies · May 2026</p>
         </div>
 
         <div className="relative self-start sm:self-auto">
@@ -395,10 +377,10 @@ export function HRAnalytics({ onNavigate: _onNavigate }: HRAnalyticsProps) {
               <div className="fixed md:absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 md:top-full md:right-0 md:left-auto md:translate-x-0 md:translate-y-0 md:mt-2 bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C] rounded-lg shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.7)] border border-gray-200 dark:border-[#2A2A2A] overflow-hidden z-50 flex w-[95vw] max-w-[420px] md:w-[420px] transition-colors duration-300">
                 <div className="w-36 bg-gray-50 dark:bg-[#0A0A0A] border-r border-gray-200 dark:border-[#2A2A2A] p-1.5 transition-colors duration-300">
                   {[
+                    { label: 'This Month',     value: 'thismonth'    },
                     { label: 'Last 3 Months',  value: 'last3months'  },
                     { label: 'Last 6 Months',  value: 'last6months'  },
                     { label: 'Last 12 Months', value: 'last12months' },
-                    { label: 'This Year',      value: 'thisyear'     },
                   ].map(p => (
                     <button key={p.value} onClick={() => handlePresetSelect(p.value)}
                       className={`w-full text-left px-2 py-1.5 rounded text-xs transition-colors ${
@@ -430,49 +412,67 @@ export function HRAnalytics({ onNavigate: _onNavigate }: HRAnalyticsProps) {
       </div>
 
       {/* ── KPI Cards ── */}
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-        <Card className="border-none shadow-lg bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C] overflow-hidden group hover:shadow-xl transition-all duration-300">
-          <CardContent className="p-5 relative">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-blue-50 dark:bg-transparent rounded-full blur-2xl opacity-40 -mr-8 -mt-8 group-hover:opacity-60 transition-opacity" />
-            <div className="mb-3"><div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg w-fit"><Wallet className="w-4 h-4 text-white" /></div></div>
-            <p className="text-[10px] font-semibold text-gray-400 dark:text-blue-300/60 uppercase tracking-widest mb-1">Company Cost</p>
-            <p className="text-2xl font-bold text-[#0E2250] dark:text-white">LKR 600k</p>
-            <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">May 2026</p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-none shadow-lg bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C] overflow-hidden group hover:shadow-xl transition-all duration-300">
-          <CardContent className="p-5 relative">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-emerald-50 dark:bg-transparent rounded-full blur-2xl opacity-40 -mr-8 -mt-8 group-hover:opacity-60 transition-opacity" />
-            <div className="mb-3"><div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-lg w-fit"><TrendingUp className="w-4 h-4 text-white" /></div></div>
-            <p className="text-[10px] font-semibold text-gray-400 dark:text-blue-300/60 uppercase tracking-widest mb-1">Staff Savings</p>
-            <p className="text-2xl font-bold text-[#0E2250] dark:text-white">LKR 2.1M</p>
-            <div className="flex items-center gap-1 mt-1">
-              <ArrowUpRight className="w-3 h-3 text-emerald-500" />
-              <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">+12% vs prev month</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-none shadow-lg bg-gradient-to-br from-amber-400 via-amber-500 to-orange-500 overflow-hidden group hover:shadow-xl transition-all duration-300 col-span-2 xl:col-span-1">
-          <CardContent className="p-5 relative">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-white/20 rounded-full blur-2xl -mr-8 -mt-8" />
-            <div className="mb-3"><div className="p-2.5 rounded-xl bg-white/20 shadow-lg w-fit"><BarChart3 className="w-4 h-4 text-amber-900" /></div></div>
-            <p className="text-[10px] font-semibold text-amber-900/70 uppercase tracking-widest mb-1">ROI Ratio</p>
-            <p className="text-3xl font-black text-amber-900">3.5:1</p>
-            <p className="text-[11px] text-amber-900/70 mt-1">Savings ÷ Cost</p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-none shadow-lg bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C] overflow-hidden group hover:shadow-xl transition-all duration-300">
-          <CardContent className="p-5 relative">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-teal-50 dark:bg-transparent rounded-full blur-2xl opacity-40 -mr-8 -mt-8 group-hover:opacity-60 transition-opacity" />
-            <div className="mb-3"><div className="p-2.5 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 shadow-lg w-fit"><Users className="w-4 h-4 text-white" /></div></div>
-            <p className="text-[10px] font-semibold text-gray-400 dark:text-blue-300/60 uppercase tracking-widest mb-1">Redemption Rate</p>
-            <p className="text-2xl font-bold text-[#0E2250] dark:text-white">88.5%</p>
-            <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">Used QPON ≥ once</p>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          {
+            icon: Wallet, bg: 'bg-gradient-to-br from-blue-500 to-blue-600', bgLight: 'bg-blue-50',
+            border: 'border-l-blue-500',
+            label: 'Company Cost', tooltip: 'Total subscription cost paid by the company for QPON this month.',
+            value: 'LKR 600k',
+            badge: <div className="flex items-center gap-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-2.5 py-1 rounded-full"><TrendingUp className="w-3 h-3" /><span className="text-xs font-semibold">May</span></div>,
+            sub: <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1 transition-colors duration-300">May 2026</p>,
+          },
+          {
+            icon: TrendingUp, bg: 'bg-gradient-to-br from-emerald-500 to-emerald-600', bgLight: 'bg-emerald-50',
+            border: 'border-l-emerald-500',
+            label: 'Staff Savings', tooltip: 'Total savings generated by all activated employees this month.',
+            value: 'LKR 2.1M',
+            badge: <div className="flex items-center gap-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-2.5 py-1 rounded-full"><TrendingUp className="w-3 h-3" /><span className="text-xs font-semibold">+12%</span></div>,
+            sub: <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1 transition-colors duration-300">vs prev month</p>,
+          },
+          {
+            icon: BarChart3, bg: 'bg-gradient-to-br from-violet-500 to-violet-600', bgLight: 'bg-violet-50',
+            border: 'border-l-violet-500',
+            label: 'ROI Ratio', tooltip: 'Savings ÷ Cost: for every LKR spent on QPON, employees save this multiple.',
+            value: '3.5:1',
+            badge: <div className="flex items-center gap-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-2.5 py-1 rounded-full"><TrendingUp className="w-3 h-3" /><span className="text-xs font-semibold">ROI</span></div>,
+            sub: <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1 transition-colors duration-300">savings ÷ cost</p>,
+          },
+          {
+            icon: Users, bg: 'bg-gradient-to-br from-teal-500 to-teal-600', bgLight: 'bg-teal-50',
+            border: 'border-l-teal-500',
+            label: 'Redemption Rate', tooltip: 'Percentage of activated employees who used their QPON benefit at least once.',
+            value: '88.5%',
+            badge: <div className="flex items-center gap-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-2.5 py-1 rounded-full"><TrendingUp className="w-3 h-3" /><span className="text-xs font-semibold">+2.1%</span></div>,
+            sub: <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1 transition-colors duration-300">used QPON ≥ once</p>,
+          },
+        ].map((card) => (
+          <Card key={card.label} className={`border-none shadow-lg hover:shadow-xl dark:shadow-2xl transition-all duration-300 overflow-hidden relative group border-l-4 ${card.border} bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C]`}>
+            <div className={`absolute top-0 right-0 w-32 h-32 ${card.bgLight} dark:bg-transparent rounded-full blur-3xl opacity-30 -mr-16 -mt-16 group-hover:opacity-50 transition-opacity`} />
+            <CardContent className="p-5 relative z-10">
+              <div className="flex items-start justify-between mb-4">
+                <div className={`p-3 rounded-xl ${card.bg} shadow-lg`}>
+                  <card.icon className="w-5 h-5 text-white" />
+                </div>
+                {card.badge}
+              </div>
+              <div className="flex items-center gap-1.5 mb-1">
+                <p className="text-xs font-medium text-gray-500 dark:text-blue-300/70 uppercase tracking-wide transition-colors duration-300">{card.label}</p>
+                <div className="group/tooltip relative">
+                  <Info className="w-3.5 h-3.5 text-gray-400 dark:text-blue-300/50 cursor-help transition-colors duration-300" />
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tooltip:block w-56 z-50">
+                    <div className="bg-gray-900 dark:bg-[#0A0A0A] text-white text-xs rounded-lg p-3 shadow-xl border border-transparent dark:border-gray-700">
+                      <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 dark:bg-[#0A0A0A] rotate-45"></div>
+                      {card.tooltip}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <h3 className="text-2xl font-bold text-[#0E2250] dark:text-white transition-colors duration-300">{card.value}</h3>
+              {card.sub}
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       {/* ── Savings vs Cost (3/4) + Category Pie (1/4) ── */}
@@ -518,7 +518,7 @@ export function HRAnalytics({ onNavigate: _onNavigate }: HRAnalyticsProps) {
             <div className="h-52" style={{ minHeight: 208 }}>
               {mounted && (
                 <ResponsiveContainer width="100%" height="100%">
-                  <ComposedChart data={filteredTrend} margin={{ top: 5, right: 8, left: 0, bottom: 0 }}>
+                  <ComposedChart data={chartTrend} margin={{ top: 5, right: 8, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id="gradBarSavings" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%"   stopColor="#10B981" stopOpacity={0.95} />
@@ -638,7 +638,7 @@ export function HRAnalytics({ onNavigate: _onNavigate }: HRAnalyticsProps) {
                 <div className="w-8 h-0.5 rounded-full bg-teal-500" />
                 <span className="text-xs text-gray-600 dark:text-gray-400">Redemption Rate</span>
               </div>
-              <span className="text-[10px] text-gray-400 dark:text-gray-500 ml-auto">{getDateRangeDisplay()} · {combinedTrend.length} months</span>
+              <span className="text-[10px] text-gray-400 dark:text-gray-500 ml-auto">Last 12 Months · {combinedChartTrend.length} months</span>
             </div>
           </div>
         </CardHeader>
@@ -646,7 +646,7 @@ export function HRAnalytics({ onNavigate: _onNavigate }: HRAnalyticsProps) {
           <div style={{ height: 240, minHeight: 240 }}>
             {mounted && (
               <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart data={combinedTrend} margin={{ top: 5, right: 52, left: 0, bottom: 0 }}>
+                <ComposedChart data={combinedChartTrend} margin={{ top: 5, right: 52, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="gradCombinedSavings" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%"  stopColor="#10B981" stopOpacity={0.25} />
@@ -674,22 +674,22 @@ export function HRAnalytics({ onNavigate: _onNavigate }: HRAnalyticsProps) {
               </ResponsiveContainer>
             )}
           </div>
-          {combinedTrend.length > 1 && (
+          {combinedChartTrend.length > 1 && (
             <div className="mt-3 pt-3 border-t border-gray-100 dark:border-[#2A2A2A] grid grid-cols-3 gap-4 text-[10px] text-gray-400">
               <div>
                 <p>Cumulative savings</p>
-                <p className="font-semibold text-emerald-600 dark:text-emerald-400 text-xs mt-0.5">{fmtShort(filteredTrend.reduce((a, b) => a + b.savings, 0))}</p>
+                <p className="font-semibold text-emerald-600 dark:text-emerald-400 text-xs mt-0.5">{fmtShort(chartTrend.reduce((a, b) => a + b.savings, 0))}</p>
               </div>
               <div>
                 <p>Activation</p>
                 <p className="font-semibold text-blue-600 dark:text-blue-400 text-xs mt-0.5">
-                  {filteredActivation[0]?.rate ?? '–'}% → {filteredActivation[filteredActivation.length - 1]?.rate ?? '–'}%
+                  {ACTIVATION_TREND[0]?.rate ?? '–'}% → {ACTIVATION_TREND[ACTIVATION_TREND.length - 1]?.rate ?? '–'}%
                 </p>
               </div>
               <div>
                 <p>Redemption</p>
                 <p className="font-semibold text-teal-600 dark:text-teal-400 text-xs mt-0.5">
-                  {filteredRedemption[0]?.rate ?? '–'}% → {filteredRedemption[filteredRedemption.length - 1]?.rate ?? '–'}%
+                  {REDEMPTION_TREND[0]?.rate ?? '–'}% → {REDEMPTION_TREND[REDEMPTION_TREND.length - 1]?.rate ?? '–'}%
                 </p>
               </div>
             </div>

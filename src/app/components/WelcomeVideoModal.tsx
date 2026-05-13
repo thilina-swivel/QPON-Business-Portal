@@ -259,8 +259,8 @@ export function WelcomeVideoModal({ isOpen, onClose }: WelcomeVideoModalProps) {
         {/* Header */}
         <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/60 to-transparent p-3 sm:p-4 flex items-center justify-between gap-2">
           <div className="min-w-0 flex-1">
-            <h2 className="text-white font-semibold text-sm sm:text-base truncate">Welcome to QPON Merchant Dashboard</h2>
-            <p className="text-white/80 text-xs sm:text-sm hidden sm:block">Quick tutorial to get you started</p>
+            <h2 className="text-white font-semibold text-sm sm:text-base truncate">Welcome to QPON Business Portal</h2>
+            <p className="text-white/80 text-xs sm:text-sm hidden sm:block">Quick tour to set up your team's benefits</p>
           </div>
           <button
             onClick={handleSkip}
@@ -380,7 +380,7 @@ export function WelcomeVideoModal({ isOpen, onClose }: WelcomeVideoModalProps) {
         {/* Footer Actions */}
         <div className="p-3 sm:p-4 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-            Learn how to create deals, manage coupons, and track analytics
+            Learn how to onboard employees, manage benefits, and track team savings
           </p>
           <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             

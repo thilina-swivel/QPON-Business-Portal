@@ -144,8 +144,8 @@ export function HRBilling({ onNavigate: _onNavigate }: HRBillingProps) {
 
       {/* ── Header ── */}
       <div>
-        <h2 className="text-xl font-semibold text-[#0E2250] dark:text-white">Billing</h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400">Axora Technologies · Gold Plan · 500 Seats</p>
+        <h2 className="text-2xl font-bold text-[#0E2250] dark:text-white transition-colors duration-300">Billing</h2>
+        <p className="text-gray-500 dark:text-gray-400 transition-colors duration-300">Axora Technologies · Gold Plan · 500 Seats</p>
       </div>
 
       {/* ── Tabs ── */}

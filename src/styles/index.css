@@ -3,3 +3,8 @@
 @import 'tw-animate-css';
 @import './default_theme.css';
 @import './globals.css';
+
+@theme {
+  --font-sans: 'Nunito', ui-sans-serif, system-ui, sans-serif;
+  --font-quicksand: 'Quicksand', ui-sans-serif, system-ui, sans-serif;
+}

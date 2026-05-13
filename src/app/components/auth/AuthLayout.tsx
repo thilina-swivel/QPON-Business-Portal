@@ -1,5 +1,5 @@
 import React from 'react';
-import logoImage from 'figma:asset/991ae2b932337e09452e4b99d1ed6a73c11299d5.png';
+import logoImage from '../../../assets/logo.png';
 import { AuthSlider } from './AuthSlider';
 
 interface AuthLayoutProps {
@@ -27,12 +27,12 @@ export function AuthLayout({ children, title, subtitle, backButton }: AuthLayout
          <AuthSlider />
          
          {/* Logo Overlay on Slider */}
-         <div className="absolute top-8 left-8 z-20 bg-white/10 backdrop-blur-md p-3 rounded-xl border border-white/10">
-            <img src={logoImage} alt="QPON.lk" className="h-8 w-auto brightness-0 invert" />
+         <div className="absolute top-8 left-8 z-20">
+            <img src={logoImage} alt="QPON.lk" className="h-8 w-auto" />
          </div>
          
          <div className="absolute bottom-8 right-8 z-20 text-right">
-             <p className="text-xs text-white/40 font-medium">© 2026 QPON Merchant Portal</p>
+             <p className="text-xs text-white/40 font-medium">© 2026 QPON Business Portal</p>
          </div>
       </div>
 

@@ -1,12 +1,10 @@
 import React from 'react';
 import {
   Users, UserCheck, UserX, TrendingUp, Wallet, BarChart3,
-  RefreshCw, Send, ChevronRight, ChevronLeft, ChevronDown, Activity, FileText, CreditCard,
-  Star, Zap, Clock, CheckCircle2, ArrowUpRight, Building2,
-  BadgeCheck, AlertCircle, ReceiptText, Medal, CalendarDays,
+  RefreshCw, Send, FileText, CreditCard,
+  Star, Building2, ReceiptText, Medal, Info,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Button } from '../ui/button';
 import { Skeleton } from '../ui/skeleton';
 import { cn } from '../../lib/utils';
 
@@ -208,176 +206,12 @@ function HRDashboardEmpty({ onNavigate }: { onNavigate?: (v: string) => void }) 
 
 // ── Main (Populated) Dashboard ───────────────────────────────────────────────
 
-const hrPresets = [
-  { value: 'thismonth',    label: 'This Month' },
-  { value: 'lastmonth',    label: 'Last Month' },
-  { value: 'last3months',  label: 'Last 3 Months' },
-  { value: 'thisyear',     label: 'This Year' },
-];
 
 export function HRDashboard({ onNavigate }: HRDashboardProps) {
   const [dashboardState] = React.useState<HRDashboardState>('populated');
   const [lastRefreshed, setLastRefreshed] = React.useState('Just now');
   const [isRefreshing, setIsRefreshing] = React.useState(false);
 
-  // Date picker state
-  const [dateRange, setDateRange] = React.useState('thismonth');
-  const [showDatePicker, setShowDatePicker] = React.useState(false);
-  const [currentMonth, setCurrentMonth] = React.useState(new Date().getMonth());
-  const [currentYear, setCurrentYear] = React.useState(new Date().getFullYear());
-  const [selectedStartDate, setSelectedStartDate] = React.useState<Date | null>(null);
-  const [selectedEndDate, setSelectedEndDate] = React.useState<Date | null>(null);
-  const [hoverDate, setHoverDate] = React.useState<Date | null>(null);
-
-  const getDateRangeDisplay = () => {
-    if (dateRange === 'custom' && selectedStartDate) {
-      const fmt = (d: Date) => {
-        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-        return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
-      };
-      return selectedEndDate
-        ? `${fmt(selectedStartDate)} – ${fmt(selectedEndDate)}`
-        : fmt(selectedStartDate);
-    }
-    return hrPresets.find((p) => p.value === dateRange)?.label ?? 'This Month';
-  };
-
-  const handlePresetSelect = (preset: string) => {
-    setDateRange(preset);
-    setSelectedStartDate(null);
-    setSelectedEndDate(null);
-    setShowDatePicker(false);
-  };
-
-  const getDaysInMonth = (month: number, year: number) => new Date(year, month + 1, 0).getDate();
-  const getFirstDayOfMonth = (month: number, year: number) => new Date(year, month, 1).getDay();
-
-  const isSameDay = (d1: Date | null, d2: Date | null) => {
-    if (!d1 || !d2) return false;
-    return d1.getDate() === d2.getDate() && d1.getMonth() === d2.getMonth() && d1.getFullYear() === d2.getFullYear();
-  };
-
-  const isInRange = (date: Date) => {
-    if (!selectedStartDate) return false;
-    const end = hoverDate && !selectedEndDate ? hoverDate : selectedEndDate;
-    if (!end) return false;
-    const start = selectedStartDate < end ? selectedStartDate : end;
-    const endD = selectedStartDate < end ? end : selectedStartDate;
-    return date >= start && date <= endD;
-  };
-
-  const isRangeStart = (date: Date) => {
-    if (!selectedStartDate || !selectedEndDate) return isSameDay(date, selectedStartDate);
-    return isSameDay(date, selectedStartDate) || isSameDay(date, selectedEndDate);
-  };
-
-  const handleDateClick = (day: number) => {
-    const clicked = new Date(currentYear, currentMonth, day);
-    if (!selectedStartDate || (selectedStartDate && selectedEndDate)) {
-      setSelectedStartDate(clicked);
-      setSelectedEndDate(null);
-      setDateRange('custom');
-    } else {
-      if (clicked < selectedStartDate) {
-        setSelectedEndDate(selectedStartDate);
-        setSelectedStartDate(clicked);
-      } else {
-        setSelectedEndDate(clicked);
-      }
-    }
-  };
-
-  const renderCalendar = () => {
-    const daysInMonth = getDaysInMonth(currentMonth, currentYear);
-    const firstDay = getFirstDayOfMonth(currentMonth, currentYear);
-    const days = [];
-    const dayNames = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-
-    for (let i = 0; i < firstDay; i++) days.push(<div key={`e-${i}`} />);
-
-    for (let day = 1; day <= daysInMonth; day++) {
-      const date = new Date(currentYear, currentMonth, day);
-      const isSelected = isRangeStart(date);
-      const inRange = isInRange(date);
-      const isToday = isSameDay(date, new Date());
-      days.push(
-        <button
-          key={day}
-          onClick={() => handleDateClick(day)}
-          onMouseEnter={() => setHoverDate(date)}
-          onMouseLeave={() => setHoverDate(null)}
-          className={cn(
-            'h-7 text-xs transition-colors relative',
-            isSelected ? 'bg-[#E35000] text-white font-semibold rounded-md z-10' :
-            inRange ? 'bg-orange-50 dark:bg-orange-900/30 text-[#E35000] dark:text-orange-300' :
-            isToday ? 'font-semibold text-[#E35000] dark:text-orange-400' :
-            'hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-gray-200'
-          )}
-        >
-          {day}
-        </button>
-      );
-    }
-
-    return (
-      <div className="p-3">
-        <div className="flex items-center justify-between mb-3">
-          <button
-            onClick={() => {
-              if (currentMonth === 0) { setCurrentMonth(11); setCurrentYear((y: number) => y - 1); }
-              else setCurrentMonth((m: number) => m - 1);
-            }}
-            className="p-0.5 hover:bg-gray-100 dark:hover:bg-white/10 rounded transition-colors"
-          >
-            <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-gray-200" />
-          </button>
-          <div className="flex items-center gap-2">
-            <select
-              value={currentMonth}
-              onChange={(e) => setCurrentMonth(Number(e.target.value))}
-              className="text-xs font-medium text-gray-700 dark:text-white bg-transparent border-none focus:outline-none cursor-pointer"
-            >
-              {monthNames.map((m, i) => <option key={i} value={i}>{m}</option>)}
-            </select>
-            <select
-              value={currentYear}
-              onChange={(e) => setCurrentYear(Number(e.target.value))}
-              className="text-xs font-medium text-gray-700 dark:text-white bg-transparent border-none focus:outline-none cursor-pointer"
-            >
-              {Array.from({ length: 10 }, (_, i) => currentYear - 5 + i).map((y) => (
-                <option key={y} value={y}>{y}</option>
-              ))}
-            </select>
-          </div>
-          <button
-            onClick={() => {
-              if (currentMonth === 11) { setCurrentMonth(0); setCurrentYear((y: number) => y + 1); }
-              else setCurrentMonth((m: number) => m + 1);
-            }}
-            className="p-0.5 hover:bg-gray-100 dark:hover:bg-white/10 rounded transition-colors"
-          >
-            <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-200" />
-          </button>
-        </div>
-        <div className="grid grid-cols-7 gap-0.5 mb-1">
-          {dayNames.map((d, i) => (
-            <div key={i} className="text-center text-[10px] font-medium text-gray-400 py-1">{d}</div>
-          ))}
-        </div>
-        <div className="grid grid-cols-7 gap-0.5">{days}</div>
-        {selectedStartDate && (
-          <div className="mt-3 pt-3 border-t border-gray-200 dark:border-[#2A2A2A]">
-            <p className="text-[10px] text-gray-600 dark:text-gray-300">
-              <span className="font-medium">Selected: </span>
-              {selectedStartDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-              {selectedEndDate && ` – ${selectedEndDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`}
-            </p>
-          </div>
-        )}
-      </div>
-    );
-  };
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -398,9 +232,9 @@ export function HRDashboard({ onNavigate }: HRDashboardProps) {
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-[#0E2250] dark:text-white">{COMPANY}</h2>
+          <h2 className="text-2xl font-bold text-[#0E2250] dark:text-white transition-colors duration-300">{COMPANY}</h2>
           <div className="flex items-center gap-3 mt-1">
-            <span className="text-sm text-gray-500 dark:text-gray-400">{CURRENT_MONTH}</span>
+            <span className="text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">{CURRENT_MONTH}</span>
             <span className="text-gray-300 dark:text-gray-600">·</span>
             <div className="flex items-center gap-1.5">
               <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
@@ -409,84 +243,6 @@ export function HRDashboard({ onNavigate }: HRDashboardProps) {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {/* Date range picker */}
-          <div className="relative">
-            <button
-              onClick={() => setShowDatePicker(!showDatePicker)}
-              className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] rounded-lg hover:bg-gray-50 dark:hover:bg-[#1C1C1C] transition-colors text-sm text-gray-600 dark:text-gray-300"
-            >
-              <CalendarDays className="w-4 h-4 text-gray-400 flex-shrink-0" />
-              <span>{getDateRangeDisplay()}</span>
-              <ChevronDown className={cn("w-4 h-4 text-gray-400 transition-transform", showDatePicker && "rotate-180")} />
-            </button>
-
-            {showDatePicker && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setShowDatePicker(false)} />
-                <div className="absolute top-full right-0 mt-2 bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C] rounded-lg shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.7)] border border-gray-200 dark:border-[#2A2A2A] overflow-hidden z-50 flex w-[360px]">
-                  {/* Presets */}
-                  <div className="w-36 bg-gray-50 dark:bg-[#0A0A0A] border-r border-gray-200 dark:border-[#2A2A2A] p-1.5 flex-shrink-0">
-                    {hrPresets.map((preset) => (
-                      <button
-                        key={preset.value}
-                        onClick={() => handlePresetSelect(preset.value)}
-                        className={cn(
-                          'w-full text-left px-2 py-1.5 rounded text-xs transition-colors',
-                          dateRange === preset.value && !selectedStartDate
-                            ? 'bg-[#E35000] text-white font-medium'
-                            : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10'
-                        )}
-                      >
-                        {preset.label}
-                      </button>
-                    ))}
-                    <div className="my-1.5 border-t border-gray-200 dark:border-[#2A2A2A]" />
-                    <button
-                      onClick={() => setDateRange('custom')}
-                      className={cn(
-                        'w-full text-left px-2 py-1.5 rounded text-xs transition-colors',
-                        dateRange === 'custom' && selectedStartDate
-                          ? 'bg-[#E35000] text-white font-medium'
-                          : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10'
-                      )}
-                    >
-                      Custom Range
-                    </button>
-                  </div>
-
-                  {/* Calendar */}
-                  <div className="flex-1 min-w-0">
-                    {renderCalendar()}
-                    <div className="flex gap-2 px-3 pb-3">
-                      <Button
-                        className="flex-1 bg-gray-100 dark:bg-[#2A2A2A] hover:bg-gray-200 dark:hover:bg-[#1C1C1C] text-gray-700 dark:text-white border-none text-xs py-1.5"
-                        onClick={() => {
-                          setSelectedStartDate(null);
-                          setSelectedEndDate(null);
-                          setShowDatePicker(false);
-                        }}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        className="flex-1 bg-[#E35000] hover:bg-[#c44500] text-white border-none text-xs py-1.5"
-                        onClick={() => {
-                          if (selectedStartDate) {
-                            setDateRange('custom');
-                            setShowDatePicker(false);
-                          }
-                        }}
-                        disabled={!selectedStartDate}
-                      >
-                        Apply
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-
           {/* Refresh */}
           <button
             onClick={handleRefresh}
@@ -500,114 +256,98 @@ export function HRDashboard({ onNavigate }: HRDashboardProps) {
       </div>
 
       {/* ── KPI Cards ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
-        {/* 1 — Total Seats */}
-        <Card className="border-none shadow-lg border-l-4 border-l-blue-500 bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C] overflow-hidden group hover:shadow-xl transition-all duration-300">
-          <CardContent className="p-5 relative">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-blue-50 dark:bg-transparent rounded-full blur-2xl opacity-40 -mr-8 -mt-8 group-hover:opacity-60 transition-opacity" />
-            <div className="flex items-start justify-between mb-3">
-              <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg"><Users className="w-4 h-4 text-white" /></div>
-            </div>
-            <p className="text-[10px] font-semibold text-gray-400 dark:text-blue-300/60 uppercase tracking-widest mb-1">Total Seats</p>
-            <p className="text-2xl font-bold text-[#0E2250] dark:text-white mb-2">{kpiData.totalSeats.total.toLocaleString()}</p>
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 dark:bg-[#2A2A2A] text-gray-500 dark:text-gray-400">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-400 inline-block" />Silver {kpiData.totalSeats.silver}
-              </span>
-              <span className="flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block" />Gold {kpiData.totalSeats.gold}
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* 2 — Activated */}
-        <Card className="border-none shadow-lg border-l-4 border-l-emerald-500 bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C] overflow-hidden group hover:shadow-xl transition-all duration-300">
-          <CardContent className="p-5 relative">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-emerald-50 dark:bg-transparent rounded-full blur-2xl opacity-40 -mr-8 -mt-8 group-hover:opacity-60 transition-opacity" />
-            <div className="flex items-start justify-between mb-3">
-              <div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-lg"><UserCheck className="w-4 h-4 text-white" /></div>
-              <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full">{activationPct}%</span>
-            </div>
-            <p className="text-[10px] font-semibold text-gray-400 dark:text-blue-300/60 uppercase tracking-widest mb-1">Activated</p>
-            <p className="text-2xl font-bold text-[#0E2250] dark:text-white">{kpiData.activated.toLocaleString()}</p>
-            <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">of {kpiData.totalSeats.total} employees</p>
-          </CardContent>
-        </Card>
-
-        {/* 3 — Pending */}
-        <Card className="border-none shadow-lg border-l-4 border-l-orange-500 bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C] overflow-hidden group hover:shadow-xl transition-all duration-300">
-          <CardContent className="p-5 relative">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-orange-50 dark:bg-transparent rounded-full blur-2xl opacity-40 -mr-8 -mt-8 group-hover:opacity-60 transition-opacity" />
-            <div className="flex items-start justify-between mb-3">
-              <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#E35000] to-[#FF6B35] shadow-lg"><UserX className="w-4 h-4 text-white" /></div>
-              <button className="flex items-center gap-1 text-[10px] font-semibold text-[#E35000] hover:text-[#c44500] bg-orange-50 dark:bg-[#E35000]/10 px-2 py-1 rounded-full transition-colors">
-                <Send className="w-2.5 h-2.5" />Resend All
-              </button>
-            </div>
-            <p className="text-[10px] font-semibold text-gray-400 dark:text-blue-300/60 uppercase tracking-widest mb-1">Pending</p>
-            <p className="text-2xl font-bold text-[#0E2250] dark:text-white">{kpiData.pending}</p>
-            <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">not yet activated</p>
-          </CardContent>
-        </Card>
-
-        {/* 4 — Total Staff Savings */}
-        <Card className="border-none shadow-lg border-l-4 border-l-teal-500 bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C] overflow-hidden group hover:shadow-xl transition-all duration-300">
-          <CardContent className="p-5 relative">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-teal-50 dark:bg-transparent rounded-full blur-2xl opacity-40 -mr-8 -mt-8 group-hover:opacity-60 transition-opacity" />
-            <div className="flex items-start justify-between mb-3">
-              <div className="p-2.5 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 shadow-lg"><Wallet className="w-4 h-4 text-white" /></div>
-              <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 text-xs font-semibold bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full">
-                <TrendingUp className="w-3 h-3" />+12%
+        {[
+          {
+            icon: Users, bg: 'bg-gradient-to-br from-blue-500 to-blue-600', bgLight: 'bg-blue-50',
+            border: 'border-l-blue-500',
+            label: 'Total Seats', tooltip: 'Total licensed seats across all tiers (Silver + Gold).',
+            value: kpiData.totalSeats.total.toLocaleString(),
+            badge: <div className="flex items-center gap-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-2.5 py-1 rounded-full"><TrendingUp className="w-3 h-3" /><span className="text-xs font-semibold">{activationPct}%</span></div>,
+            sub: (
+              <div className="flex items-center gap-2 mt-3">
+                <span className="flex items-center gap-1 text-[10px] px-2 py-1 rounded-full bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 font-medium">
+                  <UserCheck className="w-3 h-3" />{kpiData.activated} Activated
+                </span>
+                <span className="flex items-center gap-1 text-[10px] px-2 py-1 rounded-full bg-orange-100 dark:bg-[#E35000]/20 text-[#E35000] font-semibold ring-1 ring-[#E35000]/30">
+                  <UserX className="w-3 h-3" />{kpiData.pending} Pending
+                </span>
               </div>
-            </div>
-            <p className="text-[10px] font-semibold text-gray-400 dark:text-blue-300/60 uppercase tracking-widest mb-1">Staff Savings</p>
-            <p className="text-lg font-bold text-[#0E2250] dark:text-white">LKR {(kpiData.totalSavings / 1000).toFixed(0)}K</p>
-            <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">this month</p>
-          </CardContent>
-        </Card>
-
-        {/* 5 — Average Saving */}
-        <Card className="border-none shadow-lg border-l-4 border-l-violet-500 bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C] overflow-hidden group hover:shadow-xl transition-all duration-300">
-          <CardContent className="p-5 relative">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-violet-50 dark:bg-transparent rounded-full blur-2xl opacity-40 -mr-8 -mt-8 group-hover:opacity-60 transition-opacity" />
-            <div className="flex items-start justify-between mb-3">
-              <div className="p-2.5 rounded-xl bg-gradient-to-br from-violet-500 to-violet-600 shadow-lg"><Star className="w-4 h-4 text-white" /></div>
-            </div>
-            <p className="text-[10px] font-semibold text-gray-400 dark:text-blue-300/60 uppercase tracking-widest mb-1">Avg / Employee</p>
-            <p className="text-lg font-bold text-[#0E2250] dark:text-white">LKR {kpiData.avgSaving.toLocaleString()}</p>
-            <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">per person this month</p>
-          </CardContent>
-        </Card>
-
-        {/* 6 — ROI Ratio (prominent) */}
-        <Card className="border-none shadow-xl border-l-4 border-l-amber-500 bg-gradient-to-br from-amber-500 to-amber-600 overflow-hidden group hover:shadow-2xl transition-all duration-300 relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-400/20 to-transparent" />
-          <CardContent className="p-5 relative z-10">
-            <div className="flex items-start justify-between mb-3">
-              <div className="p-2.5 rounded-xl bg-white/20 shadow-md"><BarChart3 className="w-4 h-4 text-white" /></div>
-              <span className="text-[10px] font-bold text-white/80 bg-white/20 px-2 py-0.5 rounded-full uppercase tracking-wide">ROI</span>
-            </div>
-            <p className="text-[10px] font-semibold text-white/70 uppercase tracking-widest mb-1">Cost vs Savings</p>
-            <p className="text-3xl font-black text-white mb-1">{kpiData.ratio}:1</p>
-            <div className="space-y-0.5">
-              <p className="text-[10px] text-white/70">Cost: LKR {(kpiData.cost / 1000).toFixed(0)}K</p>
-              <p className="text-[10px] text-white/90 font-semibold">Savings: LKR {(kpiData.ratioSavings / 1000).toFixed(0)}K</p>
-            </div>
-          </CardContent>
-        </Card>
+            ),
+          },
+          {
+            icon: Wallet, bg: 'bg-gradient-to-br from-teal-500 to-teal-600', bgLight: 'bg-teal-50',
+            border: 'border-l-teal-500',
+            label: 'Staff Savings', tooltip: 'Total savings generated by activated employees this month.',
+            value: `LKR ${(kpiData.totalSavings / 1000).toFixed(0)}K`,
+            badge: <div className="flex items-center gap-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-2.5 py-1 rounded-full"><TrendingUp className="w-3 h-3" /><span className="text-xs font-semibold">+12%</span></div>,
+            sub: <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1 transition-colors duration-300">this month</p>,
+          },
+          {
+            icon: Star, bg: 'bg-gradient-to-br from-violet-500 to-violet-600', bgLight: 'bg-violet-50',
+            border: 'border-l-violet-500',
+            label: 'Avg / Employee', tooltip: 'Average savings per active employee for the current month.',
+            value: `LKR ${kpiData.avgSaving.toLocaleString()}`,
+            badge: <div className="flex items-center gap-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-2.5 py-1 rounded-full"><TrendingUp className="w-3 h-3" /><span className="text-xs font-semibold">+5.2%</span></div>,
+            sub: <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1 transition-colors duration-300">per person this month</p>,
+          },
+          {
+            icon: BarChart3, bg: 'bg-gradient-to-br from-emerald-500 to-emerald-600', bgLight: 'bg-emerald-50',
+            border: 'border-l-emerald-500',
+            label: 'Cost vs Savings', tooltip: 'ROI ratio: total employee savings divided by your subscription cost.',
+            value: `${kpiData.ratio}:1`,
+            badge: <div className="flex items-center gap-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-2.5 py-1 rounded-full"><TrendingUp className="w-3 h-3" /><span className="text-xs font-semibold">ROI</span></div>,
+            sub: (
+              <div className="flex items-center gap-3 mt-1">
+                <p className="text-[10px] text-gray-400 dark:text-gray-500 transition-colors duration-300">Cost <span className="font-medium text-gray-600 dark:text-gray-300">LKR {(kpiData.cost / 1000).toFixed(0)}K</span></p>
+                <p className="text-[10px] text-gray-400 dark:text-gray-500 transition-colors duration-300">Saved <span className="font-medium text-emerald-600 dark:text-emerald-400">LKR {(kpiData.ratioSavings / 1000).toFixed(0)}K</span></p>
+              </div>
+            ),
+          },
+        ].map((card) => (
+          <Card key={card.label} className={`border-none shadow-lg hover:shadow-xl dark:shadow-2xl transition-all duration-300 overflow-hidden relative group border-l-4 ${card.border} bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C]`}>
+            <div className={`absolute top-0 right-0 w-32 h-32 ${card.bgLight} dark:bg-transparent rounded-full blur-3xl opacity-30 -mr-16 -mt-16 group-hover:opacity-50 transition-opacity`} />
+            <CardContent className="p-5 relative z-10">
+              <div className="flex items-start justify-between mb-4">
+                <div className={`p-3 rounded-xl ${card.bg} shadow-lg`}>
+                  <card.icon className="w-5 h-5 text-white" />
+                </div>
+                {card.badge}
+              </div>
+              <div className="flex items-center gap-1.5 mb-1">
+                <p className="text-xs font-medium text-gray-500 dark:text-blue-300/70 uppercase tracking-wide transition-colors duration-300">{card.label}</p>
+                <div className="group/tooltip relative">
+                  <Info className="w-3.5 h-3.5 text-gray-400 dark:text-blue-300/50 cursor-help transition-colors duration-300" />
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tooltip:block w-56 z-50">
+                    <div className="bg-gray-900 dark:bg-[#0A0A0A] text-white text-xs rounded-lg p-3 shadow-xl border border-transparent dark:border-gray-700">
+                      <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 dark:bg-[#0A0A0A] rotate-45"></div>
+                      {card.tooltip}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <h3 className="text-2xl font-bold text-[#0E2250] dark:text-white transition-colors duration-300">{card.value}</h3>
+              {card.sub}
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       {/* ── Activation Summary Bar ── */}
-      <Card className="border-none shadow-lg bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C]">
-        <CardContent className="p-5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-            <div className="flex items-center gap-3">
-              <h3 className="text-sm font-semibold text-[#0E2250] dark:text-white">Activation Progress</h3>
-              <div className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-                <span className="text-xs text-gray-400 dark:text-gray-500">Live</span>
+      <Card className="border-none shadow-lg hover:shadow-xl dark:shadow-2xl transition-all duration-300 bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C]">
+        <CardHeader className="border-b border-gray-100 dark:border-[#2A2A2A] bg-gradient-to-r from-gray-50 to-white dark:from-[#0A0A0A] dark:to-[#141414] transition-colors duration-300">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-1.5">
+              <CardTitle className="text-[#0E2250] dark:text-white transition-colors duration-300">Activation Progress</CardTitle>
+              <div className="group/tooltip relative">
+                <Info className="w-3.5 h-3.5 text-gray-400 dark:text-blue-300/50 cursor-help transition-colors duration-300" />
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover/tooltip:block w-64 z-50">
+                  <div className="bg-gray-900 dark:bg-[#0A0A0A] text-white text-xs rounded-lg p-3 shadow-xl border border-transparent dark:border-gray-700">
+                    <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 dark:bg-[#0A0A0A] rotate-45"></div>
+                    Percentage of seats where employees have activated their QPON benefit.
+                  </div>
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -619,8 +359,8 @@ export function HRDashboard({ onNavigate }: HRDashboardProps) {
               </button>
             </div>
           </div>
-
-          {/* Progress bar */}
+        </CardHeader>
+        <CardContent className="p-5">
           <div className="space-y-2">
             <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
               <span>{kpiData.activated.toLocaleString()} activated</span>
@@ -645,31 +385,41 @@ export function HRDashboard({ onNavigate }: HRDashboardProps) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {/* Activity Feed */}
-        <Card className="lg:col-span-2 border-none shadow-lg bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C]">
-          <CardHeader className="border-b border-gray-100 dark:border-[#2A2A2A]">
+        <Card className="lg:col-span-2 border-none shadow-lg hover:shadow-xl dark:shadow-2xl transition-all duration-300 bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C]">
+          <CardHeader className="border-b border-gray-100 dark:border-[#2A2A2A] bg-gradient-to-r from-gray-50 to-white dark:from-[#0A0A0A] dark:to-[#141414] transition-colors duration-300">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <CardTitle className="text-[#0E2250] dark:text-white text-base">Activity Feed</CardTitle>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-                  <span className="text-xs text-gray-400 dark:text-gray-500">Live</span>
+              <div className="flex items-center gap-1.5">
+                <CardTitle className="text-[#0E2250] dark:text-white transition-colors duration-300">Recent Activity</CardTitle>
+                <div className="group/tooltip relative">
+                  <Info className="w-3.5 h-3.5 text-gray-400 dark:text-blue-300/50 cursor-help transition-colors duration-300" />
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover/tooltip:block w-64 z-50">
+                    <div className="bg-gray-900 dark:bg-[#0A0A0A] text-white text-xs rounded-lg p-3 shadow-xl border border-transparent dark:border-gray-700">
+                      <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 dark:bg-[#0A0A0A] rotate-45"></div>
+                      Real-time log of employee activations, upgrades, invoices, and admin actions.
+                    </div>
+                  </div>
                 </div>
               </div>
-              <span className="text-xs text-gray-400 dark:text-gray-500">Last 10 events</span>
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/30 rounded-full">
+                <div className="w-2 h-2 bg-emerald-500 dark:bg-emerald-400 rounded-full animate-pulse" />
+                <span className="text-xs font-medium text-emerald-700 dark:text-emerald-400">Live</span>
+              </div>
             </div>
           </CardHeader>
-          <CardContent className="p-0">
-            <div className="divide-y divide-gray-50 dark:divide-[#2A2A2A]">
+          <CardContent className="p-5">
+            <div className="space-y-4">
               {activityFeed.map((event) => {
                 const Icon = event.icon;
                 const colorClass = feedIconColor[event.type] ?? feedIconColor.admin;
                 return (
-                  <div key={event.id} className="flex items-center gap-3 px-5 py-3.5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
-                    <div className={cn("p-2 rounded-full flex-shrink-0", colorClass)}>
+                  <div key={event.id} className="flex items-center gap-3 border-b border-gray-50 dark:border-[#2A2A2A] last:border-0 pb-4 last:pb-0 transition-colors duration-300">
+                    <div className={cn("p-2 rounded-lg flex-shrink-0", colorClass)}>
                       <Icon className="w-3.5 h-3.5" />
                     </div>
-                    <p className="flex-1 text-sm text-[#0E2250] dark:text-gray-200 leading-snug">{event.message}</p>
-                    <span className="text-[11px] text-gray-400 dark:text-gray-500 whitespace-nowrap flex-shrink-0">{event.time}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-[#0E2250] dark:text-white text-[14px] transition-colors duration-300 leading-snug">{event.message}</p>
+                    </div>
+                    <span className="text-[10px] text-gray-400 dark:text-blue-300/60 whitespace-nowrap flex-shrink-0 transition-colors duration-300">{event.time}</span>
                   </div>
                 );
               })}
@@ -677,66 +427,78 @@ export function HRDashboard({ onNavigate }: HRDashboardProps) {
           </CardContent>
         </Card>
 
-        {/* Quick Navigation */}
-        <div className="space-y-4">
-          <Card className="border-none shadow-lg bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C]">
-            <CardHeader className="border-b border-gray-100 dark:border-[#2A2A2A]">
-              <CardTitle className="text-[#0E2250] dark:text-white text-base">Quick Actions</CardTitle>
+        {/* Quick Actions + Top Employees */}
+        <div className="space-y-6">
+          <Card className="border-none shadow-lg hover:shadow-xl dark:shadow-2xl transition-all duration-300 bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C]">
+            <CardHeader className="border-b border-gray-100 dark:border-[#2A2A2A] bg-gradient-to-r from-gray-50 to-white dark:from-[#0A0A0A] dark:to-[#141414] transition-colors duration-300">
+              <CardTitle className="text-[#0E2250] dark:text-white transition-colors duration-300">Quick Actions</CardTitle>
             </CardHeader>
-            <CardContent className="p-4 space-y-3">
-              {[
-                {
-                  label: 'Employees',
-                  desc: 'Manage roster & seats',
-                  icon: Users,
-                  view: 'hr-employees',
-                  color: 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400',
-                },
-                {
-                  label: 'Analytics',
-                  desc: 'Savings & usage trends',
-                  icon: BarChart3,
-                  view: 'hr-analytics',
-                  color: 'bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400',
-                },
-                {
-                  label: 'Billing',
-                  desc: 'Invoices & plan details',
-                  icon: CreditCard,
-                  view: 'hr-billing',
-                  color: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400',
-                },
-              ].map((item) => (
+            <CardContent>
+              <div className="space-y-2">
                 <button
-                  key={item.label}
-                  onClick={() => onNavigate?.(item.view)}
-                  className="w-full flex items-center gap-3 p-3.5 rounded-xl border border-gray-100 dark:border-[#2A2A2A] hover:border-[#E35000] hover:bg-orange-50/30 dark:hover:bg-white/5 transition-all duration-200 group"
+                  onClick={() => onNavigate?.('hr-employees')}
+                  className="w-full flex items-center gap-2 px-3 py-2 bg-[#E35000] hover:bg-[#c44500] text-white rounded-lg transition-all text-sm"
                 >
-                  <div className={cn("p-2.5 rounded-lg flex-shrink-0", item.color)}>
-                    <item.icon className="w-4 h-4" />
-                  </div>
-                  <div className="flex-1 text-left">
-                    <p className="text-sm font-semibold text-[#0E2250] dark:text-white">{item.label}</p>
-                    <p className="text-xs text-gray-400 dark:text-gray-500">{item.desc}</p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-gray-300 dark:text-gray-600 group-hover:text-[#E35000] transition-colors" />
+                  <Users className="w-4 h-4" />
+                  <span>Add Employees</span>
                 </button>
-              ))}
+                <button
+                  onClick={() => onNavigate?.('hr-analytics')}
+                  className="w-full flex items-center gap-2 px-3 py-2 bg-white dark:bg-[#1C1C1C] hover:bg-gray-50 dark:hover:bg-[#141414] text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-[#2A2A2A] rounded-lg transition-all text-sm duration-300"
+                >
+                  <BarChart3 className="w-4 h-4" />
+                  <span>View Analytics</span>
+                </button>
+                <button
+                  onClick={() => onNavigate?.('hr-billing')}
+                  className="w-full flex items-center gap-2 px-3 py-2 bg-white dark:bg-[#1C1C1C] hover:bg-gray-50 dark:hover:bg-[#141414] text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-[#2A2A2A] rounded-lg transition-all text-sm duration-300"
+                >
+                  <CreditCard className="w-4 h-4" />
+                  <span>Manage Billing</span>
+                </button>
+              </div>
             </CardContent>
           </Card>
 
-          {/* Plan summary mini-card */}
-          <Card className="border-none shadow-md bg-gradient-to-br from-[#0E2250] to-[#1a3a7a] dark:from-[#141414] dark:to-[#1C1C1C]">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <BadgeCheck className="w-4 h-4 text-amber-400" />
-                <span className="text-xs font-semibold text-white/80 uppercase tracking-wide">Active Plan</span>
+          {/* Top 5 Performing Employees */}
+          <Card className="border-none shadow-lg hover:shadow-xl dark:shadow-2xl transition-all duration-300 bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C]">
+            <CardHeader className="border-b border-gray-100 dark:border-[#2A2A2A] bg-gradient-to-r from-gray-50 to-white dark:from-[#0A0A0A] dark:to-[#141414] transition-colors duration-300">
+              <div className="flex items-center gap-1.5">
+                <CardTitle className="text-[#0E2250] dark:text-white transition-colors duration-300">Top Performing Employees</CardTitle>
+                <div className="group/tooltip relative">
+                  <Info className="w-3.5 h-3.5 text-gray-400 dark:text-blue-300/50 cursor-help transition-colors duration-300" />
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover/tooltip:block w-64 z-50">
+                    <div className="bg-gray-900 dark:bg-[#0A0A0A] text-white text-xs rounded-lg p-3 shadow-xl border border-transparent dark:border-gray-700">
+                      <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 dark:bg-[#0A0A0A] rotate-45"></div>
+                      Ranked by total savings generated through coupon redemptions this month.
+                    </div>
+                  </div>
+                </div>
               </div>
-              <p className="text-white font-bold text-sm mb-1">Enterprise — 850 seats</p>
-              <p className="text-white/60 text-xs mb-3">Renews 1 Jun 2026</p>
-              <div className="flex items-center justify-between text-[10px]">
-                <span className="text-white/50">Next invoice</span>
-                <span className="text-white/80 font-semibold">LKR 510,000</span>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {[
+                  { rank: 1, name: 'Nimal Perera',           tier: 'Gold',   savings: 'LKR 12,400', coupons: 32, rankBg: 'bg-gradient-to-br from-yellow-400 to-yellow-500 text-white' },
+                  { rank: 2, name: 'Kavindi Silva',          tier: 'Gold',   savings: 'LKR 10,800', coupons: 28, rankBg: 'bg-gradient-to-br from-gray-300 to-gray-400 text-white' },
+                  { rank: 3, name: 'Dilshan Wickramasinghe', tier: 'Silver', savings: 'LKR 8,200',  coupons: 24, rankBg: 'bg-gradient-to-br from-orange-300 to-orange-400 text-white' },
+                  { rank: 4, name: 'Amaya Fernando',         tier: 'Silver', savings: 'LKR 7,600',  coupons: 22, rankBg: 'bg-gradient-to-br from-gray-200 to-gray-300 text-gray-700' },
+                  { rank: 5, name: 'Ruwan Jayawardena',      tier: 'Gold',   savings: 'LKR 6,900',  coupons: 19, rankBg: 'bg-gradient-to-br from-gray-200 to-gray-300 text-gray-700' },
+                ].map((emp) => (
+                  <div key={emp.rank} className="flex items-center gap-3 p-2.5 rounded-lg border border-gray-100 dark:border-[#2A2A2A] hover:border-[#E35000] hover:bg-orange-50/30 dark:hover:bg-white/5 transition-all duration-300">
+                    <div className={`flex items-center justify-center w-7 h-7 rounded-full font-bold text-xs shadow-md flex-shrink-0 ${emp.rankBg}`}>
+                      {emp.rank}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium text-[#0E2250] dark:text-white text-[14px] truncate transition-colors duration-300">{emp.name}</h4>
+                      <p className="text-[12px] text-gray-500 dark:text-gray-400 transition-colors duration-300">{emp.tier}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">{emp.savings}</p>
+                      <p className="text-[10px] text-gray-500 dark:text-blue-300/60 transition-colors duration-300">{emp.coupons} coupons</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>

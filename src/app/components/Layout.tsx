@@ -1,8 +1,8 @@
 import React from 'react';
-import { LayoutDashboard, Users, BarChart3, CreditCard, Menu, X, User, Moon, Sun, Bell, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Users, BarChart3, CreditCard, Menu, X, User, Moon, Sun, Bell, HelpCircle } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { Button } from './ui/button';
-import logoImage from 'figma:asset/991ae2b932337e09452e4b99d1ed6a73c11299d5.png';
+import logoImage from '../../assets/logo.png';
 import { Header } from './Header';
 import {
   DropdownMenu,
@@ -22,25 +22,18 @@ interface LayoutProps {
   currentView: string;
   onChangeView: (view: string) => void;
   onLogout?: () => void;
+  onShowGuide?: () => void;
 }
 
-export function Layout({ children, currentView, onChangeView, onLogout }: LayoutProps) {
+export function Layout({ children, currentView, onChangeView, onLogout, onShowGuide }: LayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
-  const [isCollapsed, setIsCollapsed] = React.useState(() => {
-    const saved = localStorage.getItem('qp_sidebar_collapsed');
-    return saved === 'true';
-  });
+  const [isCollapsed] = React.useState(false);
   const [isDarkMode, setIsDarkMode] = React.useState(() => {
     const savedMode = localStorage.getItem('qp_dark_mode');
     return savedMode === 'true';
   });
   const [unreadCount] = React.useState(3);
 
-  const handleToggleCollapse = () => {
-    const next = !isCollapsed;
-    setIsCollapsed(next);
-    localStorage.setItem('qp_sidebar_collapsed', next.toString());
-  };
 
   const merchantData = {
     name: 'Axora Technologies',
@@ -197,14 +190,9 @@ export function Layout({ children, currentView, onChangeView, onLogout }: Layout
     <div className="flex flex-col h-full">
       {/* Logo / Header */}
       {!isMobile && (
-        <div className={cn(
-          "flex items-center h-20 border-b border-gray-800/30 transition-all duration-300",
-          isCollapsed ? "justify-center px-2" : "justify-center px-6"
-        )}>
-          {isCollapsed
-            ? <div className="w-8 h-8 bg-[#E35000] rounded-lg flex items-center justify-center text-white font-bold text-sm">Q</div>
-            : <img src={logoImage} alt="QPON.lk" className="h-10 w-auto" />
-          }
+        <div className="flex flex-col items-start justify-center h-20 border-b border-gray-800/30 gap-1 px-6">
+          <img src={logoImage} alt="QPON.lk" className="h-8 w-auto" />
+          <p className="text-[9px] text-gray-500 font-medium tracking-widest uppercase">Business Portal</p>
         </div>
       )}
 
@@ -219,17 +207,14 @@ export function Layout({ children, currentView, onChangeView, onLogout }: Layout
       {/* Bottom section: Guide + User Account */}
       <div className={cn("mt-auto space-y-3", isCollapsed && !isMobile ? "p-2" : isMobile ? "p-4" : "p-4")}>
 
-        {/* Collapse Toggle — desktop only */}
+        {/* Getting Started guide button */}
         {!isMobile && (
           <button
-            onClick={handleToggleCollapse}
-            className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-gray-500 hover:text-gray-300 hover:bg-white/5 transition-colors text-xs"
-            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            onClick={onShowGuide}
+            className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors text-xs font-medium"
           >
-            {isCollapsed
-              ? <ChevronRight className="w-4 h-4" />
-              : <><ChevronLeft className="w-4 h-4" /><span>Collapse</span></>
-            }
+            <HelpCircle className="w-4 h-4 flex-shrink-0" />
+            <span>Getting Started</span>
           </button>
         )}
       </div>

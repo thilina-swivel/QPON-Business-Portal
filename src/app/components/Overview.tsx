@@ -976,8 +976,8 @@ export function Overview({ onNavigate }: OverviewProps) {
           {/* Custom Date Picker Dropdown */}
           {showDatePicker && (
             <>
-              <div 
-                className="fixed inset-0 z-40" 
+              <div
+                className="fixed inset-0 z-40"
                 onClick={() => setShowDatePicker(false)}
               />
               <div className="fixed md:absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 md:top-full md:right-0 md:left-auto md:translate-x-0 md:translate-y-0 md:mt-2 bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C] rounded-lg shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.7)] border border-gray-200 dark:border-[#2A2A2A] overflow-hidden z-50 flex w-[95vw] max-w-[420px] md:w-[420px] transition-colors duration-300">
@@ -1010,8 +1010,8 @@ export function Overview({ onNavigate }: OverviewProps) {
                 <div className="flex-1">
                   {renderCalendar()}
                   <div className="flex gap-2 px-3 pb-3">
-                    <Button 
-                      className="flex-1 bg-gray-100 dark:bg-[#1C1C1C] hover:bg-gray-200 dark:hover:bg-[#141414] text-gray-700 dark:text-gray-200 border-none text-xs py-1.5 transition-colors duration-300" 
+                    <Button
+                      className="flex-1 bg-gray-100 dark:bg-[#1C1C1C] hover:bg-gray-200 dark:hover:bg-[#141414] text-gray-700 dark:text-gray-200 border-none text-xs py-1.5 transition-colors duration-300"
                       onClick={() => {
                         setSelectedStartDate(null);
                         setSelectedEndDate(null);
@@ -1020,8 +1020,8 @@ export function Overview({ onNavigate }: OverviewProps) {
                     >
                       Cancel
                     </Button>
-                    <Button 
-                      className="flex-1 bg-[#E35000] hover:bg-[#c44500] text-white border-none text-xs py-1.5" 
+                    <Button
+                      className="flex-1 bg-[#E35000] hover:bg-[#c44500] text-white border-none text-xs py-1.5"
                       onClick={() => {
                         if (selectedStartDate) {
                           setDateRange('custom');

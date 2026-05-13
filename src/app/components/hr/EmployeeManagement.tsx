@@ -758,8 +758,8 @@ function EmployeeList({ employees, onViewDetail, onRemove, onTierChange, onResen
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-semibold text-[#0E2250] dark:text-white">Employees</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <h2 className="text-2xl font-bold text-[#0E2250] dark:text-white transition-colors duration-300">Employees</h2>
+          <p className="text-gray-500 dark:text-gray-400 transition-colors duration-300">
             {employees.length} total · {employees.filter(e => e.status === 'Activated').length} activated · {employees.filter(e => e.status === 'Pending').length} pending
           </p>
         </div>
