@@ -1,11 +1,11 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import {
   ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell,
+  PieChart, Pie, Cell, Sector,
 } from 'recharts';
 import {
   TrendingUp, Download, FileText, Users,
-  ChevronDown, ChevronUp, Medal, Search,
+  ChevronDown, Medal, Search,
   Utensils, GlassWater, Coffee, ShoppingCart, Pill, ShoppingBag,
   Wallet, BarChart3, Info,
   CalendarDays, ChevronLeft, ChevronRight, FileSpreadsheet,
@@ -18,12 +18,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type DeptSortKey = 'name' | 'employees' | 'totalSavings' | 'avgPerEmployee' | 'redemptionRate';
-type SortDir = 'asc' | 'desc';
 
 interface TrendMonth { label: string; savings: number; cost: number; date: Date; }
-interface CategoryItem { label: string; amount: number; color: string; icon: React.ElementType; }
-interface Department { name: string; employees: number; totalSavings: number; avgPerEmployee: number; redemptionRate: number; }
+interface CategoryItem { label: string; amount: number; color: string; gradEnd: string; icon: React.ElementType; }
 interface TopEmployee { rank: number; name: string; department: string; tier: 'Silver' | 'Gold'; savings: number; }
 interface EmpBreakdownRow { name: string; department: string; tier: 'Bronze' | 'Silver' | 'Gold'; qponsUsed: number; lastRedemption: string; }
 interface RatePoint { label: string; rate: number; date: Date; }
@@ -76,24 +73,14 @@ const REDEMPTION_TREND: RatePoint[] = [
 ];
 
 const CATEGORIES: CategoryItem[] = [
-  { label: 'Dining',   amount: 630000, color: '#E35000', icon: Utensils },
-  { label: 'Bar',      amount: 315000, color: '#3B82F6', icon: GlassWater },
-  { label: 'Cafe',     amount: 252000, color: '#F97316', icon: Coffee },
-  { label: 'Grocery',  amount: 378000, color: '#10B981', icon: ShoppingCart },
-  { label: 'Pharmacy', amount: 252000, color: '#8B5CF6', icon: Pill },
-  { label: 'Retail',   amount: 273000, color: '#F59E0B', icon: ShoppingBag },
+  { label: 'Dining',   amount: 630000, color: '#4338CA', gradEnd: '#818CF8', icon: Utensils },
+  { label: 'Grocery',  amount: 378000, color: '#0F766E', gradEnd: '#5EEAD4', icon: ShoppingCart },
+  { label: 'Bar',      amount: 315000, color: '#1D4ED8', gradEnd: '#93C5FD', icon: GlassWater },
+  { label: 'Retail',   amount: 273000, color: '#92400E', gradEnd: '#FCD34D', icon: ShoppingBag },
+  { label: 'Cafe',     amount: 252000, color: '#6D28D9', gradEnd: '#C4B5FD', icon: Coffee },
+  { label: 'Pharmacy', amount: 252000, color: '#9F1239', gradEnd: '#FDA4AF', icon: Pill },
 ];
 
-const DEPARTMENTS: Department[] = [
-  { name: 'Engineering', employees: 45, totalSavings: 378000, avgPerEmployee: 8400, redemptionRate: 96 },
-  { name: 'Operations',  employees: 52, totalSavings: 364000, avgPerEmployee: 7000, redemptionRate: 90 },
-  { name: 'Finance',     employees: 38, totalSavings: 285000, avgPerEmployee: 7500, redemptionRate: 89 },
-  { name: 'IT',          employees: 35, totalSavings: 280000, avgPerEmployee: 8000, redemptionRate: 91 },
-  { name: 'Sales',       employees: 44, totalSavings: 264000, avgPerEmployee: 6000, redemptionRate: 86 },
-  { name: 'HR',          employees: 32, totalSavings: 224000, avgPerEmployee: 7000, redemptionRate: 94 },
-  { name: 'Marketing',   employees: 28, totalSavings: 168000, avgPerEmployee: 6000, redemptionRate: 82 },
-  { name: 'Legal',       employees: 18, totalSavings: 108000, avgPerEmployee: 6000, redemptionRate: 78 },
-];
 
 const TOP10: TopEmployee[] = [
   { rank: 1,  name: 'Bimal Seneviratne',      department: 'Engineering', tier: 'Gold', savings: 9500 },
@@ -174,10 +161,8 @@ export function HRAnalytics({ onNavigate: _onNavigate }: HRAnalyticsProps) {
   const [selectedStartDate, setSelectedStartDate] = useState<Date | null>(null);
   const [selectedEndDate, setSelectedEndDate]     = useState<Date | null>(null);
   const [hoverDate, setHoverDate]                 = useState<Date | null>(null);
+  const [activeCatIndex, setActiveCatIndex]       = useState<number | undefined>(undefined);
 
-  // ── Other state ──
-  const [deptSortKey, setDeptSortKey]       = useState<DeptSortKey>('totalSavings');
-  const [deptSortDir, setDeptSortDir]       = useState<SortDir>('desc');
 
   // ── Date picker helpers ──
   const getDateRangeDisplay = () => {
@@ -318,30 +303,7 @@ export function HRAnalytics({ onNavigate: _onNavigate }: HRAnalyticsProps) {
 
   const cardHead = 'border-b border-gray-100 dark:border-[#2A2A2A] bg-gradient-to-r from-gray-50 to-white dark:from-[#0A0A0A] dark:to-[#141414] transition-colors duration-300 pt-4 pb-3 px-5';
 
-  // ── Department sort ──
-  const sortedDepts = useMemo(() => [...DEPARTMENTS].sort((a, b) => {
-    const av = a[deptSortKey], bv = b[deptSortKey];
-    const cmp = typeof av === 'string' ? (av as string).localeCompare(bv as string) : (av as number) - (bv as number);
-    return deptSortDir === 'asc' ? cmp : -cmp;
-  }), [deptSortKey, deptSortDir]);
-
-  const handleDeptSort = (key: DeptSortKey) => {
-    if (key === deptSortKey) setDeptSortDir(d => d === 'asc' ? 'desc' : 'asc');
-    else { setDeptSortKey(key); setDeptSortDir('desc'); }
-  };
-
   const totalCat = CATEGORIES.reduce((a, c) => a + c.amount, 0);
-
-  const DeptColHeader = ({ col, label, right = false }: { col: DeptSortKey; label: string; right?: boolean }) => (
-    <th className={cn('px-3 py-3 cursor-pointer select-none group', right && 'text-right')} onClick={() => handleDeptSort(col)}>
-      <div className={cn('flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-200 transition-colors', right && 'justify-end')}>
-        {label}
-        {deptSortKey === col
-          ? (deptSortDir === 'asc' ? <ChevronUp className="w-3 h-3 text-[#E35000]" /> : <ChevronDown className="w-3 h-3 text-[#E35000]" />)
-          : <ChevronDown className="w-3 h-3 text-gray-300 dark:text-gray-600" />}
-      </div>
-    </th>
-  );
 
   // ── Export dropdown — matches Analytics.tsx pattern ──
 
@@ -406,56 +368,56 @@ export function HRAnalytics({ onNavigate: _onNavigate }: HRAnalyticsProps) {
       </div>
 
       {/* ── KPI Cards ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           {
             icon: Wallet, bg: 'bg-gradient-to-br from-blue-500 to-blue-600', bgLight: 'bg-blue-50',
             border: 'border-l-blue-500',
             label: 'Company Cost', tooltip: 'Total subscription cost paid by the company for QPON this month.',
             value: 'LKR 600k',
-            badge: <div className="flex items-center gap-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-2.5 py-1 rounded-full"><TrendingUp className="w-3 h-3" /><span className="text-xs font-semibold">May</span></div>,
-            sub: <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1 transition-colors duration-300">May 2026</p>,
+            badge: <div className="flex items-center gap-0.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full flex-shrink-0"><TrendingUp className="w-2.5 h-2.5 sm:w-3 sm:h-3" /><span className="text-[10px] sm:text-xs font-semibold">May</span></div>,
+            sub: <p className="text-[10px] sm:text-[11px] text-gray-400 dark:text-gray-500 mt-1 transition-colors duration-300">May 2026</p>,
           },
           {
             icon: TrendingUp, bg: 'bg-gradient-to-br from-emerald-500 to-emerald-600', bgLight: 'bg-emerald-50',
             border: 'border-l-emerald-500',
             label: 'Staff Savings', tooltip: 'Total savings generated by all activated employees this month.',
             value: 'LKR 2.1M',
-            badge: <div className="flex items-center gap-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-2.5 py-1 rounded-full"><TrendingUp className="w-3 h-3" /><span className="text-xs font-semibold">+12%</span></div>,
-            sub: <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1 transition-colors duration-300">vs prev month</p>,
+            badge: <div className="flex items-center gap-0.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full flex-shrink-0"><TrendingUp className="w-2.5 h-2.5 sm:w-3 sm:h-3" /><span className="text-[10px] sm:text-xs font-semibold">+12%</span></div>,
+            sub: <p className="text-[10px] sm:text-[11px] text-gray-400 dark:text-gray-500 mt-1 transition-colors duration-300">vs prev month</p>,
           },
           {
             icon: BarChart3, bg: 'bg-gradient-to-br from-violet-500 to-violet-600', bgLight: 'bg-violet-50',
             border: 'border-l-violet-500',
             label: 'ROI Ratio', tooltip: 'Savings ÷ Cost: for every LKR spent on QPON, employees save this multiple.',
             value: '3.5:1',
-            badge: <div className="flex items-center gap-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-2.5 py-1 rounded-full"><TrendingUp className="w-3 h-3" /><span className="text-xs font-semibold">ROI</span></div>,
-            sub: <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1 transition-colors duration-300">savings ÷ cost</p>,
+            badge: <div className="flex items-center gap-0.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full flex-shrink-0"><TrendingUp className="w-2.5 h-2.5 sm:w-3 sm:h-3" /><span className="text-[10px] sm:text-xs font-semibold">ROI</span></div>,
+            sub: <p className="text-[10px] sm:text-[11px] text-gray-400 dark:text-gray-500 mt-1 transition-colors duration-300">savings ÷ cost</p>,
           },
           {
             icon: Users, bg: 'bg-gradient-to-br from-teal-500 to-teal-600', bgLight: 'bg-teal-50',
             border: 'border-l-teal-500',
             label: 'Redemption Rate', tooltip: 'Percentage of activated employees who used their QPON benefit at least once.',
             value: '88.5%',
-            badge: <div className="flex items-center gap-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-2.5 py-1 rounded-full"><TrendingUp className="w-3 h-3" /><span className="text-xs font-semibold">+2.1%</span></div>,
-            sub: <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1 transition-colors duration-300">used QPON ≥ once</p>,
+            badge: <div className="flex items-center gap-0.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full flex-shrink-0"><TrendingUp className="w-2.5 h-2.5 sm:w-3 sm:h-3" /><span className="text-[10px] sm:text-xs font-semibold">+2.1%</span></div>,
+            sub: <p className="text-[10px] sm:text-[11px] text-gray-400 dark:text-gray-500 mt-1 transition-colors duration-300">used QPON ≥ once</p>,
           },
         ].map((card) => (
           <Card key={card.label} className={`border-none shadow-lg hover:shadow-xl dark:shadow-2xl transition-all duration-300 relative group border-l-4 ${card.border} bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C]`}>
             <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
               <div className={`absolute top-0 right-0 w-32 h-32 ${card.bgLight} dark:bg-transparent rounded-full blur-3xl opacity-30 -mr-16 -mt-16 group-hover:opacity-50 transition-opacity`} />
             </div>
-            <CardContent className="p-5 relative z-10">
-              <div className="flex items-start justify-between mb-4">
-                <div className={`p-3 rounded-xl ${card.bg} shadow-lg`}>
-                  <card.icon className="w-5 h-5 text-white" />
+            <CardContent className="p-3 sm:p-5 relative z-10">
+              <div className="flex items-start justify-between mb-3">
+                <div className={`p-2 sm:p-3 rounded-xl ${card.bg} shadow-lg`}>
+                  <card.icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </div>
                 {card.badge}
               </div>
-              <div className="flex items-center gap-1.5 mb-1">
-                <p className="text-xs font-medium text-gray-500 dark:text-blue-300/70 uppercase tracking-wide transition-colors duration-300">{card.label}</p>
+              <div className="flex items-center gap-1 mb-1">
+                <p className="text-[10px] sm:text-xs font-medium text-gray-500 dark:text-blue-300/70 uppercase tracking-wide transition-colors duration-300 leading-tight">{card.label}</p>
                 <div className="group/tooltip relative">
-                  <Info className="w-3.5 h-3.5 text-gray-400 dark:text-blue-300/50 cursor-help transition-colors duration-300" />
+                  <Info className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-gray-400 dark:text-blue-300/50 cursor-help transition-colors duration-300 flex-shrink-0" />
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tooltip:block w-56 z-50">
                     <div className="bg-gray-900 dark:bg-[#0A0A0A] text-white text-xs rounded-lg p-3 shadow-xl border border-transparent dark:border-gray-700">
                       <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 dark:bg-[#0A0A0A] rotate-45"></div>
@@ -464,24 +426,24 @@ export function HRAnalytics({ onNavigate: _onNavigate }: HRAnalyticsProps) {
                   </div>
                 </div>
               </div>
-              <h3 className="text-2xl font-bold text-[#0E2250] dark:text-white transition-colors duration-300">{card.value}</h3>
+              <h3 className="text-lg sm:text-2xl font-bold text-[#0E2250] dark:text-white transition-colors duration-300">{card.value}</h3>
               {card.sub}
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* ── Savings vs Cost (3/4) + Category Pie (1/4) ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      {/* ── Monthly Savings vs Company Cost + Redemption Rate Trend ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-        {/* Savings vs Cost — 3/4 */}
-        <Card className="lg:col-span-3 border-none shadow-md bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C]">
+        {/* Monthly Savings vs Company Cost */}
+        <Card className="border-none shadow-md bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C]">
           <CardHeader className={cardHead}>
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1.5">
                   <CardTitle className="text-[#0E2250] dark:text-white text-base sm:text-[18px] transition-colors duration-300">
-                    Monthly Savings vs Company Cost
+                    Savings vs Cost
                   </CardTitle>
                   <div className="group/tooltip relative">
                     <Info className="w-4 h-4 text-gray-400 cursor-help flex-shrink-0" />
@@ -511,7 +473,7 @@ export function HRAnalytics({ onNavigate: _onNavigate }: HRAnalyticsProps) {
             </div>
           </CardHeader>
           <CardContent className="px-5 pb-5 pt-4">
-            <div className="h-52" style={{ minHeight: 208 }}>
+            <div style={{ height: 220, minHeight: 220 }}>
               {mounted && (
                 <ResponsiveContainer width="100%" height="100%">
                   <ComposedChart data={chartTrend} margin={{ top: 5, right: 8, left: 0, bottom: 0 }}>
@@ -534,17 +496,75 @@ export function HRAnalytics({ onNavigate: _onNavigate }: HRAnalyticsProps) {
           </CardContent>
         </Card>
 
-        {/* Savings by Category — 1/4 — Pie chart */}
+        {/* Redemption Rate Trend */}
+        <Card className="border-none shadow-md bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C]">
+          <CardHeader className={cardHead}>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5">
+                  <CardTitle className="text-[#0E2250] dark:text-white text-base sm:text-[18px] transition-colors duration-300">
+                    Redemption Rate Trend
+                  </CardTitle>
+                  <div className="group/tooltip relative">
+                    <Info className="w-4 h-4 text-gray-400 cursor-help flex-shrink-0" />
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover/tooltip:block w-64 z-50 pointer-events-none">
+                      <div className="bg-gray-900 dark:bg-[#0A0A0A] text-white text-xs rounded-lg p-3 shadow-xl border border-transparent dark:border-[#2A2A2A]">
+                        <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 dark:bg-[#0A0A0A] rotate-45" />
+                        <p className="text-white/70 leading-relaxed"><span className="text-teal-400 font-medium">Redemption Rate</span> — percentage of activated employees who used their QPON benefit at least once each month.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <ExportBtn />
+              </div>
+              <div className="flex items-center gap-4 flex-wrap">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-8 h-0.5 rounded-full bg-teal-500" />
+                  <span className="text-xs text-gray-600 dark:text-gray-400">Redemption Rate</span>
+                </div>
+                
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="px-5 pb-5 pt-4">
+            <div style={{ height: 220, minHeight: 220 }}>
+              {mounted && (
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart data={combinedChartTrend} margin={{ top: 5, right: 16, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#2A2A2A' : '#f0f0f0'} vertical={false} />
+                    <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                    <YAxis domain={[60, 100]} tickFormatter={(v: number) => `${v}%`} tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} width={38} />
+                    <Tooltip
+                      contentStyle={ttStyle.contentStyle}
+                      labelStyle={ttStyle.labelStyle}
+                      itemStyle={ttStyle.itemStyle}
+                      cursor={ttStyle.cursor}
+                      formatter={(value: number) => [`${value}%`, 'Redemption Rate']}
+                    />
+                    <Line type="monotone" dataKey="redemption" name="Redemption Rate" stroke="#14B8A6" strokeWidth={2} dot={{ fill: '#14B8A6', r: 3, strokeWidth: 0 }} activeDot={{ r: 5, strokeWidth: 0 }} />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+      </div>
+
+      {/* ── By Category + Top 10 ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        {/* By Category */}
         <Card className="border-none shadow-md bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C]">
           <CardHeader className={cardHead}>
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-1.5">
-                <CardTitle className="text-[#0E2250] dark:text-white text-base sm:text-[18px] transition-colors duration-300">By Category</CardTitle>
+                <CardTitle className="text-[#0E2250] dark:text-white text-base sm:text-[18px] transition-colors duration-300">Saving By Category</CardTitle>
                 <div className="group/tooltip relative">
                   <Info className="w-4 h-4 text-gray-400 cursor-help flex-shrink-0" />
-                  <div className="absolute top-full right-0 mt-2 hidden group-hover/tooltip:block w-52 z-50 pointer-events-none">
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover/tooltip:block w-52 z-50 pointer-events-none">
                     <div className="bg-gray-900 dark:bg-[#0A0A0A] text-white text-xs rounded-lg p-3 shadow-xl border border-transparent dark:border-[#2A2A2A]">
-                      <div className="absolute -top-1 right-4 w-2 h-2 bg-gray-900 dark:bg-[#0A0A0A] rotate-45" />
+                      <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 dark:bg-[#0A0A0A] rotate-45" />
                       Breakdown of employee savings by spend category this month.
                     </div>
                   </div>
@@ -553,162 +573,83 @@ export function HRAnalytics({ onNavigate: _onNavigate }: HRAnalyticsProps) {
               <ExportBtn />
             </div>
           </CardHeader>
-          <CardContent className="px-4 pb-4 pt-3 flex flex-col items-center">
-            <div className="w-full" style={{ height: 180 }}>
+          <CardContent className="px-5 pb-5 pt-2">
+            {/* Donut with center label — overflow:visible lets tooltip escape clip */}
+            <div className="relative w-full [&_svg]:outline-none [&_path]:outline-none [&_path]:focus:outline-none" style={{ height: 200, overflow: 'visible' }}>
               {mounted && (
                 <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
+                  <PieChart style={{ outline: 'none' }}>
+                    <defs>
+                      {CATEGORIES.map(cat => (
+                        <linearGradient key={cat.label} id={`cat-grad-${cat.label}`} x1="0" y1="0" x2="1" y2="1">
+                          <stop offset="0%" stopColor={cat.color} stopOpacity={1} />
+                          <stop offset="100%" stopColor={cat.gradEnd} stopOpacity={1} />
+                        </linearGradient>
+                      ))}
+                    </defs>
                     <Pie
                       data={CATEGORIES}
                       cx="50%"
                       cy="50%"
-                      innerRadius={45}
-                      outerRadius={72}
-                      paddingAngle={3}
+                      innerRadius={64}
+                      outerRadius={90}
+                      paddingAngle={2}
                       dataKey="amount"
                       nameKey="label"
+                      strokeWidth={0}
+                      activeIndex={activeCatIndex}
+                      activeShape={(props: any) => <Sector {...props} outerRadius={props.outerRadius} />}
+                      onMouseEnter={(_: any, index: number) => setActiveCatIndex(index)}
+                      onMouseLeave={() => setActiveCatIndex(undefined)}
+                      onClick={() => {}}
                     >
                       {CATEGORIES.map((cat) => (
-                        <Cell key={cat.label} fill={cat.color} />
+                        <Cell key={cat.label} fill={`url(#cat-grad-${cat.label})`} />
                       ))}
                     </Pie>
                     <Tooltip
-                      contentStyle={ttStyle.contentStyle}
-                      labelStyle={ttStyle.labelStyle}
-                      itemStyle={ttStyle.itemStyle}
+                      wrapperStyle={{ zIndex: 50, outline: 'none' }}
+                      contentStyle={{
+                        backgroundColor: isDark ? '#1C1C1C' : '#fff',
+                        border: isDark ? '1px solid #2A2A2A' : '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        padding: '8px 12px',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                        fontSize: '12px',
+                        color: isDark ? '#fff' : '#111',
+                      }}
+                      labelStyle={{ display: 'none' }}
+                      itemStyle={{ color: isDark ? '#e5e7eb' : '#374151', padding: 0 }}
                       formatter={(v: number, name: string) => [fmtShort(v), name]}
+                      allowEscapeViewBox={{ x: false, y: true }}
                     />
                   </PieChart>
                 </ResponsiveContainer>
               )}
+              {/* Center label */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <span className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-widest font-medium mb-0.5">Total</span>
+                <span className="text-xl font-bold text-gray-900 dark:text-white leading-tight">{fmtShort(totalCat)}</span>
+                <span className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">May 2026</span>
+              </div>
             </div>
-            <div className="space-y-1.5 w-full mt-1">
-              {CATEGORIES.map(({ label, amount, color }) => (
-                <div key={label} className="flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
-                    <span className="text-gray-600 dark:text-gray-300">{label}</span>
-                  </div>
-                  <span className="font-medium text-gray-900 dark:text-white tabular-nums">
-                    {((amount / totalCat) * 100).toFixed(0)}%
-                  </span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
 
-      {/* ── Trend Report ── */}
-      <Card className="border-none shadow-md bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C]">
-        <CardHeader className={cardHead}>
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-1.5">
-                <CardTitle className="text-[#0E2250] dark:text-white text-base sm:text-[18px] transition-colors duration-300">
-                  Redemption Rate Trend
-                </CardTitle>
-                <div className="group/tooltip relative">
-                  <Info className="w-4 h-4 text-gray-400 cursor-help flex-shrink-0" />
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover/tooltip:block w-64 z-50 pointer-events-none">
-                    <div className="bg-gray-900 dark:bg-[#0A0A0A] text-white text-xs rounded-lg p-3 shadow-xl border border-transparent dark:border-[#2A2A2A]">
-                      <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 dark:bg-[#0A0A0A] rotate-45" />
-                      <p className="text-white/70 leading-relaxed"><span className="text-teal-400 font-medium">Redemption Rate</span> — percentage of activated employees who used their QPON benefit at least once each month.</p>
+            {/* Legend */}
+            <div className="mt-5 space-y-3 px-1">
+              {CATEGORIES.map(({ label, amount, color, gradEnd, icon: Icon }) => {
+                const pct = ((amount / totalCat) * 100).toFixed(0);
+                return (
+                  <div key={label} className="flex items-center gap-3">
+                    <Icon className="w-3.5 h-3.5 flex-shrink-0 opacity-75" style={{ color }} />
+                    <span className="text-xs text-gray-600 dark:text-gray-400 w-16 flex-shrink-0">{label}</span>
+                    <div className="flex-1 h-2 rounded-full bg-gray-100 dark:bg-[#2A2A2A] overflow-hidden">
+                      <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: `linear-gradient(to right, ${color}, ${gradEnd})` }} />
                     </div>
+                    <span className="text-xs font-medium text-gray-500 dark:text-gray-400 tabular-nums w-7 text-right flex-shrink-0">{pct}%</span>
                   </div>
-                </div>
-              </div>
-              <ExportBtn />
+                );
+              })}
             </div>
-            <div className="flex items-center gap-4 flex-wrap">
-              <div className="flex items-center gap-1.5">
-                <div className="w-8 h-0.5 rounded-full bg-teal-500" />
-                <span className="text-xs text-gray-600 dark:text-gray-400">Redemption Rate</span>
-              </div>
-              <span className="text-[10px] text-gray-400 dark:text-gray-500 ml-auto">Last 12 Months · {combinedChartTrend.length} months</span>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="px-5 pb-5 pt-4">
-          <div style={{ height: 240, minHeight: 240 }}>
-            {mounted && (
-              <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart data={combinedChartTrend} margin={{ top: 5, right: 16, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#2A2A2A' : '#f0f0f0'} vertical={false} />
-                  <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                  <YAxis domain={[60, 100]} tickFormatter={(v: number) => `${v}%`} tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} width={38} />
-                  <Tooltip
-                    contentStyle={ttStyle.contentStyle}
-                    labelStyle={ttStyle.labelStyle}
-                    itemStyle={ttStyle.itemStyle}
-                    cursor={ttStyle.cursor}
-                    formatter={(value: number) => [`${value}%`, 'Redemption Rate']}
-                  />
-                  <Line type="monotone" dataKey="redemption" name="Redemption Rate" stroke="#14B8A6" strokeWidth={2} dot={{ fill: '#14B8A6', r: 3, strokeWidth: 0 }} activeDot={{ r: 5, strokeWidth: 0 }} />
-                </ComposedChart>
-              </ResponsiveContainer>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* ── Department Breakdown + Top 10 ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-        {/* Department Breakdown */}
-        <Card className="border-none shadow-md bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C]">
-          <CardHeader className={cardHead}>
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-1.5">
-                <CardTitle className="text-[#0E2250] dark:text-white text-base sm:text-[18px] transition-colors duration-300">Department Breakdown</CardTitle>
-                <div className="group/tooltip relative">
-                  <Info className="w-4 h-4 text-gray-400 cursor-help flex-shrink-0" />
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover/tooltip:block w-64 z-50 pointer-events-none">
-                    <div className="bg-gray-900 dark:bg-[#0A0A0A] text-white text-xs rounded-lg p-3 shadow-xl border border-transparent dark:border-[#2A2A2A]">
-                      <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 dark:bg-[#0A0A0A] rotate-45" />
-                      See which teams are saving the most. Click any column to sort. Redemption colour: green ≥ 90%, amber ≥ 80%, red below.
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <ExportBtn />
-            </div>
-          </CardHeader>
-          <CardContent className="p-0 overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-100 dark:border-[#2A2A2A] bg-gray-50/50 dark:bg-white/2">
-                  <DeptColHeader col="name"           label="Department" />
-                  <DeptColHeader col="employees"      label="Emp"        right />
-                  <DeptColHeader col="totalSavings"   label="Saved"      right />
-                  <DeptColHeader col="redemptionRate" label="Redemp."    right />
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50 dark:divide-[#2A2A2A]">
-                {sortedDepts.map((dept, idx) => (
-                  <tr key={dept.name} className="hover:bg-gray-50 dark:hover:bg-white/2 transition-colors">
-                    <td className="px-3 py-3">
-                      <div className="flex items-center gap-1.5">
-                        {deptSortKey === 'totalSavings' && idx === 0 && <span className="text-amber-500 text-sm">🏆</span>}
-                        <span className="font-medium text-gray-900 dark:text-white text-xs">{dept.name}</span>
-                      </div>
-                    </td>
-                    <td className="px-3 py-3 text-right text-gray-600 dark:text-gray-300 text-xs">{dept.employees}</td>
-                    <td className="px-3 py-3 text-right font-semibold text-gray-900 dark:text-white text-xs">{fmtShort(dept.totalSavings)}</td>
-                    <td className="px-3 py-3 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
-                        <div className="w-10 h-1.5 rounded-full bg-gray-100 dark:bg-[#2A2A2A] overflow-hidden hidden sm:block">
-                          <div className="h-full rounded-full transition-all duration-500" style={{ width: `${dept.redemptionRate}%`, backgroundColor: dept.redemptionRate >= 90 ? '#10B981' : dept.redemptionRate >= 80 ? '#F59E0B' : '#EF4444' }} />
-                        </div>
-                        <span className={cn('text-xs font-semibold', dept.redemptionRate >= 90 ? 'text-emerald-600 dark:text-emerald-400' : dept.redemptionRate >= 80 ? 'text-amber-600 dark:text-amber-400' : 'text-red-500')}>
-                          {dept.redemptionRate}%
-                        </span>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
           </CardContent>
         </Card>
 
@@ -768,18 +709,15 @@ export function HRAnalytics({ onNavigate: _onNavigate }: HRAnalyticsProps) {
 }
 
 function EmployeeBreakdown() {
-  const [deptFilter, setDeptFilter] = useState('All');
   const [tierFilter, setTierFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const departments = ['All', ...Array.from(new Set(EMP_BREAKDOWN.map(r => r.department))).sort()];
   const tiers = ['All', 'Bronze', 'Silver', 'Gold'];
 
   const filtered = useMemo(() => EMP_BREAKDOWN.filter(r =>
-    (deptFilter === 'All' || r.department === deptFilter) &&
     (tierFilter === 'All' || r.tier === tierFilter) &&
     (searchQuery === '' || r.name.toLowerCase().includes(searchQuery.toLowerCase()))
-  ), [deptFilter, tierFilter, searchQuery]);
+  ), [tierFilter, searchQuery]);
 
   const tierColor = (t: string) =>
     t === 'Gold' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300'
@@ -791,43 +729,29 @@ function EmployeeBreakdown() {
   return (
     <Card className="border-none shadow-md bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C]">
       <CardHeader className={cardHead}>
-        <div className="flex items-center justify-between gap-2 mb-3">
-          <div className="flex items-center gap-1.5">
-            <CardTitle className="text-[#0E2250] dark:text-white text-base sm:text-[18px] transition-colors duration-300">Employee Breakdown</CardTitle>
-            <div className="group/tooltip relative">
-              <Info className="w-4 h-4 text-gray-400 cursor-help flex-shrink-0" />
-              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover/tooltip:block w-64 z-50 pointer-events-none">
-                <div className="bg-gray-900 dark:bg-[#0A0A0A] text-white text-xs rounded-lg p-3 shadow-xl border border-transparent dark:border-[#2A2A2A]">
-                  <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 dark:bg-[#0A0A0A] rotate-45" />
-                  Per-employee QPONs usage and last redemption date for the selected period.
-                </div>
+        <div className="flex items-center gap-1.5 mb-3">
+          <CardTitle className="text-[#0E2250] dark:text-white text-base sm:text-[18px] transition-colors duration-300">Employee Breakdown</CardTitle>
+          <div className="group/tooltip relative">
+            <Info className="w-4 h-4 text-gray-400 cursor-help flex-shrink-0" />
+            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover/tooltip:block w-64 z-50 pointer-events-none">
+              <div className="bg-gray-900 dark:bg-[#0A0A0A] text-white text-xs rounded-lg p-3 shadow-xl border border-transparent dark:border-[#2A2A2A]">
+                <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 dark:bg-[#0A0A0A] rotate-45" />
+                Per-employee QPONs usage and last redemption date for the selected period.
               </div>
             </div>
           </div>
-          <ExportBtn />
         </div>
         <div className="flex items-center gap-2">
           {/* Search */}
-          <div className="relative">
+          <div className="relative w-64">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search by name…"
-              className="text-xs pl-8 pr-3 py-1.5 w-44 rounded-lg border border-gray-200 dark:border-[#2A2A2A] bg-white dark:bg-[#1C1C1C] text-gray-700 dark:text-gray-300 placeholder-gray-400 focus:outline-none focus:border-[#E35000] transition-colors"
+              className="text-xs pl-8 pr-3 py-1.5 w-full rounded-lg border border-gray-200 dark:border-[#2A2A2A] bg-white dark:bg-[#1C1C1C] text-gray-700 dark:text-gray-300 placeholder-gray-400 focus:outline-none focus:border-[#E35000] transition-colors"
             />
-          </div>
-          {/* Department filter */}
-          <div className="relative flex-shrink-0">
-            <select
-              value={deptFilter}
-              onChange={e => setDeptFilter(e.target.value)}
-              className="appearance-none text-xs pl-3 pr-8 py-1.5 rounded-lg border border-gray-200 dark:border-[#2A2A2A] bg-white dark:bg-[#1C1C1C] text-gray-700 dark:text-gray-300 focus:outline-none focus:border-[#E35000] cursor-pointer transition-colors"
-            >
-              {departments.map(d => <option key={d} value={d}>{d === 'All' ? 'All Departments' : d}</option>)}
-            </select>
-            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
           </div>
           {/* Tier filter */}
           <div className="relative flex-shrink-0">
@@ -840,6 +764,8 @@ function EmployeeBreakdown() {
             </select>
             <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
           </div>
+          <div className="flex-1" />
+          <ExportBtn />
         </div>
       </CardHeader>
       <CardContent className="p-0 overflow-x-auto">

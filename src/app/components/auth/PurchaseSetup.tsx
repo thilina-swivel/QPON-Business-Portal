@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, Crown, ArrowRight, ArrowLeft, Loader2, Building2, CreditCard, Zap, Building } from 'lucide-react';
+import { Check, Crown, ArrowRight, ArrowLeft, Loader2, CreditCard, Zap, Building } from 'lucide-react';
 import { Button } from '../ui/button';
 import { toast } from 'sonner@2.0.3';
 import logoImage from '../../../assets/logo.png';
@@ -52,7 +52,6 @@ const PLAN_ICONS = {
 };
 
 const PAYMENT_METHODS = [
-  { id: 'invoice', label: 'Company Invoice', description: '30-day payment terms', gatewayNote: '', Icon: Building2 },
   { id: 'card', label: 'Credit / Debit Card', description: 'Pay online instantly', gatewayNote: 'Processed via Gene Payment Gateway', Icon: CreditCard },
 ];
 
@@ -62,7 +61,7 @@ export function PurchaseSetup({ onComplete, onBack }: PurchaseSetupProps) {
   const [silverSeats, setSilverSeats] = useState(100);
   const [goldSeats, setGoldSeats] = useState(50);
   const [isAnnual, setIsAnnual] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState('invoice');
+  const [paymentMethod, setPaymentMethod] = useState('card');
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -411,7 +410,7 @@ export function PurchaseSetup({ onComplete, onBack }: PurchaseSetupProps) {
 
               <div className="mt-5 pt-4 border-t border-white/10 space-y-1.5 text-xs text-blue-300 relative z-10">
                 <p>✓ Activates immediately on confirm</p>
-                <p>✓ Invoice emailed to finance within 24 hours</p>
+                <p>✓ Payment receipt emailed instantly</p>
                 <p>✓ Cancel or change plan anytime</p>
               </div>
 

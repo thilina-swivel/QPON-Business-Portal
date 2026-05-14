@@ -356,7 +356,7 @@ export function HRSettings({ onNavigate, onChangePlan }: HRSettingsProps) {
               <div>
                 <p className="text-gray-300 text-xs font-medium mb-1 uppercase tracking-wide">Current Plan</p>
                 <h3 className="text-2xl font-bold flex items-center gap-2">
-                  Gold Plan <Crown size={20} className="text-[#E35000] fill-[#E35000]" />
+                  Growth Plan <Crown size={20} className="text-[#E35000] fill-[#E35000]" />
                 </h3>
               </div>
               <span className="bg-[#E35000] text-white text-[10px] font-bold px-2 py-1 rounded shadow-sm">ACTIVE</span>

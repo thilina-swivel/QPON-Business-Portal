@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Layout } from "./components/Layout";
 import { HRDashboard } from "./components/hr/HRDashboard";
 import { EmployeeManagement } from "./components/hr/EmployeeManagement";
@@ -32,6 +32,10 @@ export default function App() {
     useState(false);
   const [showWelcomeModal, setShowWelcomeModal] =
     useState(false);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [currentView]);
 
   const handleLoginSuccess = () => {
     localStorage.setItem("qp_merchant_auth", "true");

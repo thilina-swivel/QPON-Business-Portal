@@ -327,15 +327,16 @@ function AddEmployeeForm({ onBack, onSuccess }: { onBack: () => void; onSuccess:
   const [email, setEmail] = useState('');
   const [department, setDepartment] = useState('');
   const [tier, setTier] = useState<Tier>('Silver');
-  const [errors, setErrors] = useState<{ name?: string; phone?: string; department?: string }>({});
+  const [errors, setErrors] = useState<{ name?: string; phone?: string; email?: string }>({});
   const [submitted, setSubmitted] = useState(false);
 
   const validate = () => {
-    const errs: { name?: string; phone?: string; department?: string } = {};
+    const errs: { name?: string; phone?: string; email?: string } = {};
     if (!name.trim()) errs.name = 'Full name is required';
     if (!phone) errs.phone = 'Mobile number is required';
     else if (!/^\d{9}$/.test(phone)) errs.phone = 'Enter a valid 9-digit number';
-    if (!department.trim()) errs.department = 'Department is required';
+    if (!email.trim()) errs.email = 'Email is required';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) errs.email = 'Enter a valid email address';
     return errs;
   };
 
@@ -419,27 +420,27 @@ function AddEmployeeForm({ onBack, onSuccess }: { onBack: () => void; onSuccess:
           {/* Email */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5">
-              Email <span className="text-gray-400 font-normal normal-case tracking-normal">(optional)</span>
+              Email <span className="text-red-500">*</span>
             </label>
             <Input
               type="email"
               value={email}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setEmail(e.target.value); if (errors.email) setErrors(p => ({ ...p, email: undefined })); }}
               placeholder="e.g. nimal@company.com"
+              className={cn(errors.email && 'border-red-500')}
             />
+            {errors.email && <p className="mt-1 text-xs text-red-500 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.email}</p>}
           </div>
           {/* Department */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5">
-              Department <span className="text-red-500">*</span>
+              Department <span className="text-gray-400 font-normal normal-case tracking-normal">(optional)</span>
             </label>
             <Input
               value={department}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setDepartment(e.target.value); if (errors.department) setErrors(p => ({ ...p, department: undefined })); }}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDepartment(e.target.value)}
               placeholder="e.g. Engineering"
-              className={cn(errors.department && 'border-red-500')}
             />
-            {errors.department && <p className="mt-1 text-xs text-red-500 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.department}</p>}
           </div>
           {/* Tier toggle */}
           <div>
@@ -547,7 +548,7 @@ function BulkUploadScreen({ onBack, onSuccess }: { onBack: () => void; onSuccess
               <FileText className="w-5 h-5 text-gray-400" />
               <div>
                 <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Download CSV Template</p>
-                <p className="text-xs text-gray-400">Full Name · Mobile Number · Email (optional) · Department</p>
+                <p className="text-xs text-gray-400">Full Name · Mobile Number · Email  · Department (optional)</p>
               </div>
             </div>
             <Button variant="outline" size="sm" className="gap-2"><Download className="w-3.5 h-3.5" />Template</Button>

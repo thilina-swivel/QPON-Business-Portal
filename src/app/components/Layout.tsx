@@ -42,7 +42,7 @@ export function Layout({ children, currentView, onChangeView, onLogout, onShowGu
   });
   const merchantData = {
     name: 'Axora Technologies',
-    planName: 'Gold Plan · 500 Seats'
+    planName: 'Growth Plan · 500 Seats'
   };
 
   // Apply dark class to document root
