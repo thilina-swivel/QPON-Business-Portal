@@ -1,18 +1,17 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import {
   ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  Area, PieChart, Pie, Cell,
+  PieChart, Pie, Cell,
 } from 'recharts';
 import {
   TrendingUp, Download, FileText, Users,
   ChevronDown, ChevronUp, Medal, Search,
-  CheckCircle2, Utensils, Fuel, ShoppingCart, Pill, ShoppingBag,
+  Utensils, GlassWater, Coffee, ShoppingCart, Pill, ShoppingBag,
   Wallet, BarChart3, Info,
   CalendarDays, ChevronLeft, ChevronRight, FileSpreadsheet,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
-import { Skeleton } from '../ui/skeleton';
 import { cn } from '../../lib/utils';
 import { useTheme } from 'next-themes@0.4.6';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
@@ -77,11 +76,12 @@ const REDEMPTION_TREND: RatePoint[] = [
 ];
 
 const CATEGORIES: CategoryItem[] = [
-  { label: 'Dining',   amount: 672000, color: '#E35000', icon: Utensils },
-  { label: 'Fuel',     amount: 441000, color: '#3B82F6', icon: Fuel },
-  { label: 'Grocery',  amount: 399000, color: '#10B981', icon: ShoppingCart },
-  { label: 'Pharmacy', amount: 294000, color: '#8B5CF6', icon: Pill },
-  { label: 'Retail',   amount: 294000, color: '#F59E0B', icon: ShoppingBag },
+  { label: 'Dining',   amount: 630000, color: '#E35000', icon: Utensils },
+  { label: 'Bar',      amount: 315000, color: '#3B82F6', icon: GlassWater },
+  { label: 'Cafe',     amount: 252000, color: '#F97316', icon: Coffee },
+  { label: 'Grocery',  amount: 378000, color: '#10B981', icon: ShoppingCart },
+  { label: 'Pharmacy', amount: 252000, color: '#8B5CF6', icon: Pill },
+  { label: 'Retail',   amount: 273000, color: '#F59E0B', icon: ShoppingBag },
 ];
 
 const DEPARTMENTS: Department[] = [
@@ -132,31 +132,6 @@ const fmtShort = (n: number) => {
 };
 const fmtFull = (n: number) => `LKR ${n.toLocaleString('en-LK')}`;
 
-
-// ─── Skeleton ─────────────────────────────────────────────────────────────────
-
-function HRAnalyticsSkeleton() {
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div><Skeleton className="h-7 w-32 mb-2" /><Skeleton className="h-4 w-40" /></div>
-        <Skeleton className="h-9 w-48" />
-      </div>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <Card key={i} className="border-none shadow-sm">
-            <CardContent className="p-5"><Skeleton className="h-4 w-24 mb-2" /><Skeleton className="h-8 w-32" /></CardContent>
-          </Card>
-        ))}
-      </div>
-      <Card className="border-none shadow-sm"><CardContent className="p-5"><Skeleton className="h-52 w-full" /></CardContent></Card>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="border-none shadow-sm"><CardContent className="p-5 space-y-3">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}</CardContent></Card>
-        <Card className="border-none shadow-sm"><CardContent className="p-5 space-y-4">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-8 w-full" />)}</CardContent></Card>
-      </div>
-    </div>
-  );
-}
 
 // ─── HRAnalytics ─────────────────────────────────────────────────────────────
 
@@ -631,15 +606,14 @@ export function HRAnalytics({ onNavigate: _onNavigate }: HRAnalyticsProps) {
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-1.5">
                 <CardTitle className="text-[#0E2250] dark:text-white text-base sm:text-[18px] transition-colors duration-300">
-                  Trend Report
+                  Redemption Rate Trend
                 </CardTitle>
                 <div className="group/tooltip relative">
                   <Info className="w-4 h-4 text-gray-400 cursor-help flex-shrink-0" />
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover/tooltip:block w-72 z-50 pointer-events-none">
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover/tooltip:block w-64 z-50 pointer-events-none">
                     <div className="bg-gray-900 dark:bg-[#0A0A0A] text-white text-xs rounded-lg p-3 shadow-xl border border-transparent dark:border-[#2A2A2A]">
                       <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 dark:bg-[#0A0A0A] rotate-45" />
-                      <p className="font-semibold mb-1">Three metrics in one view:</p>
-                      <p className="text-white/70 leading-relaxed"><span className="text-emerald-400 font-medium">Savings Growth</span> — total LKR saved each month (left axis). <span className="text-blue-400 font-medium">Activation Rate</span> — % of enrolled employees who activated. <span className="text-teal-400 font-medium">Redemption Rate</span> — % who used QPON at least once (right axis).</p>
+                      <p className="text-white/70 leading-relaxed"><span className="text-teal-400 font-medium">Redemption Rate</span> — percentage of activated employees who used their QPON benefit at least once each month.</p>
                     </div>
                   </div>
                 </div>
@@ -647,14 +621,6 @@ export function HRAnalytics({ onNavigate: _onNavigate }: HRAnalyticsProps) {
               <ExportBtn />
             </div>
             <div className="flex items-center gap-4 flex-wrap">
-              <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded-sm bg-emerald-400 opacity-80" />
-                <span className="text-xs text-gray-600 dark:text-gray-400">Employee Savings Growth</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-8 h-0.5 rounded-full bg-blue-500" />
-                <span className="text-xs text-gray-600 dark:text-gray-400">Activation Rate</span>
-              </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-8 h-0.5 rounded-full bg-teal-500" />
                 <span className="text-xs text-gray-600 dark:text-gray-400">Redemption Rate</span>
@@ -667,54 +633,22 @@ export function HRAnalytics({ onNavigate: _onNavigate }: HRAnalyticsProps) {
           <div style={{ height: 240, minHeight: 240 }}>
             {mounted && (
               <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart data={combinedChartTrend} margin={{ top: 5, right: 52, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="gradCombinedSavings" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%"  stopColor="#10B981" stopOpacity={0.25} />
-                      <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
+                <ComposedChart data={combinedChartTrend} margin={{ top: 5, right: 16, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#2A2A2A' : '#f0f0f0'} vertical={false} />
                   <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                  <YAxis yAxisId="left" tickFormatter={(v: number) => v >= 1000000 ? `${(v/1000000).toFixed(1)}M` : `${v/1000}k`} tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} width={52} />
-                  <YAxis yAxisId="right" orientation="right" domain={[60, 100]} tickFormatter={(v: number) => `${v}%`} tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} width={38} />
+                  <YAxis domain={[60, 100]} tickFormatter={(v: number) => `${v}%`} tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} width={38} />
                   <Tooltip
                     contentStyle={ttStyle.contentStyle}
                     labelStyle={ttStyle.labelStyle}
                     itemStyle={ttStyle.itemStyle}
                     cursor={ttStyle.cursor}
-                    formatter={(value: number, name: string) => {
-                      if (name === 'Employee Savings Growth') return [fmtShort(value), name];
-                      return [`${value}%`, name];
-                    }}
+                    formatter={(value: number) => [`${value}%`, 'Redemption Rate']}
                   />
-                  <Area yAxisId="left" type="monotone" dataKey="savings" name="Employee Savings Growth" stroke="#10B981" strokeWidth={2} fill="url(#gradCombinedSavings)" dot={{ fill: '#10B981', strokeWidth: 2, r: 3 }} activeDot={{ r: 5, fill: '#10B981', stroke: isDark ? '#141414' : '#fff', strokeWidth: 2 }} />
-                  <Line yAxisId="right" type="monotone" dataKey="activation" name="Activation Rate"  stroke="#3B82F6" strokeWidth={2} dot={{ fill: '#3B82F6', r: 3, strokeWidth: 0 }} activeDot={{ r: 5, strokeWidth: 0 }} />
-                  <Line yAxisId="right" type="monotone" dataKey="redemption" name="Redemption Rate" stroke="#14B8A6" strokeWidth={2} dot={{ fill: '#14B8A6', r: 3, strokeWidth: 0 }} activeDot={{ r: 5, strokeWidth: 0 }} />
+                  <Line type="monotone" dataKey="redemption" name="Redemption Rate" stroke="#14B8A6" strokeWidth={2} dot={{ fill: '#14B8A6', r: 3, strokeWidth: 0 }} activeDot={{ r: 5, strokeWidth: 0 }} />
                 </ComposedChart>
               </ResponsiveContainer>
             )}
           </div>
-          {combinedChartTrend.length > 1 && (
-            <div className="mt-3 pt-3 border-t border-gray-100 dark:border-[#2A2A2A] grid grid-cols-3 gap-4 text-[10px] text-gray-400">
-              <div>
-                <p>Cumulative savings</p>
-                <p className="font-semibold text-emerald-600 dark:text-emerald-400 text-xs mt-0.5">{fmtShort(chartTrend.reduce((a, b) => a + b.savings, 0))}</p>
-              </div>
-              <div>
-                <p>Activation</p>
-                <p className="font-semibold text-blue-600 dark:text-blue-400 text-xs mt-0.5">
-                  {ACTIVATION_TREND[0]?.rate ?? '–'}% → {ACTIVATION_TREND[ACTIVATION_TREND.length - 1]?.rate ?? '–'}%
-                </p>
-              </div>
-              <div>
-                <p>Redemption</p>
-                <p className="font-semibold text-teal-600 dark:text-teal-400 text-xs mt-0.5">
-                  {REDEMPTION_TREND[0]?.rate ?? '–'}% → {REDEMPTION_TREND[REDEMPTION_TREND.length - 1]?.rate ?? '–'}%
-                </p>
-              </div>
-            </div>
-          )}
         </CardContent>
       </Card>
 

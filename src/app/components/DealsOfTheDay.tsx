@@ -513,9 +513,12 @@ export function DealsOfTheDay({ deals, onBack }: DealsOfTheDayProps) {
                   <SelectItem value="all">
                     All Categories
                   </SelectItem>
-                  <SelectItem value="bar">Bar</SelectItem>
                   <SelectItem value="dining">Dining</SelectItem>
+                  <SelectItem value="bar">Bar</SelectItem>
                   <SelectItem value="cafe">Cafe</SelectItem>
+                  <SelectItem value="grocery">Grocery</SelectItem>
+                  <SelectItem value="pharmacy">Pharmacy</SelectItem>
+                  <SelectItem value="retail">Retail</SelectItem>
                 </SelectContent>
               </Select>
             </div>

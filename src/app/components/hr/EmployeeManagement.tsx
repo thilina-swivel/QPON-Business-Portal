@@ -4,7 +4,7 @@ import {
   ChevronDown, ChevronUp, ChevronLeft, ChevronRight,
   UserPlus, UploadCloud, Download, Trash2, Eye, Send, Medal,
   AlertCircle, CheckCircle2, X, FileText, Phone,
-  Utensils, Fuel, ShoppingCart, Pill, ArrowLeft,
+  Utensils, GlassWater, Coffee, ShoppingCart, Pill, ShoppingBag, ArrowLeft,
   Check, TrendingUp, Building2, Activity,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
@@ -34,7 +34,7 @@ interface Employee {
   totalSavings: number;
   activationDate: string | null;
   lastActive: string;
-  savingsByCategory: { Dining: number; Fuel: number; Grocery: number; Pharmacy: number };
+  savingsByCategory: { Dining: number; Bar: number; Cafe: number; Grocery: number; Pharmacy: number; Retail: number };
   merchantsVisited: string[];
 }
 
@@ -51,26 +51,26 @@ interface BulkRow {
 // ─── Demo Data ────────────────────────────────────────────────────────────────
 
 const DEMO_EMPLOYEES: Employee[] = [
-  { id: 'e1', name: 'Nimal Perera', department: 'Engineering', tier: 'Gold', status: 'Activated', phone: '+94712345678', dateJoined: '2026-01-15', savingsThisMonth: 8400, totalSavings: 42000, activationDate: '2026-01-16', lastActive: '2026-05-11', savingsByCategory: { Dining: 3200, Fuel: 2100, Grocery: 1800, Pharmacy: 1300 }, merchantsVisited: ['Keells', 'Cargills', 'Lanka Hospitals', 'Laugfs', 'Arpico'] },
-  { id: 'e2', name: 'Kavindi Silva', department: 'HR', tier: 'Gold', status: 'Activated', phone: '+94771234567', dateJoined: '2026-01-20', savingsThisMonth: 7200, totalSavings: 36000, activationDate: '2026-01-21', lastActive: '2026-05-09', savingsByCategory: { Dining: 2800, Fuel: 1900, Grocery: 1500, Pharmacy: 1000 }, merchantsVisited: ['Keells', 'Lanka Hospitals', 'Softlogic'] },
-  { id: 'e3', name: 'Roshan Fernando', department: 'Finance', tier: 'Silver', status: 'Activated', phone: '+94751234567', dateJoined: '2026-02-01', savingsThisMonth: 3800, totalSavings: 15200, activationDate: '2026-02-03', lastActive: '2026-05-08', savingsByCategory: { Dining: 1400, Fuel: 900, Grocery: 1000, Pharmacy: 500 }, merchantsVisited: ['Cargills', 'Laugfs', 'Keells'] },
-  { id: 'e4', name: 'Dilini Jayawardena', department: 'Marketing', tier: 'Silver', status: 'Pending', phone: '+94761234567', dateJoined: '2026-02-10', savingsThisMonth: 0, totalSavings: 0, activationDate: null, lastActive: '-', savingsByCategory: { Dining: 0, Fuel: 0, Grocery: 0, Pharmacy: 0 }, merchantsVisited: [] },
-  { id: 'e5', name: 'Chamara Wickramasinghe', department: 'Operations', tier: 'Gold', status: 'Activated', phone: '+94781234567', dateJoined: '2026-01-05', savingsThisMonth: 9100, totalSavings: 45500, activationDate: '2026-01-06', lastActive: '2026-05-11', savingsByCategory: { Dining: 3500, Fuel: 2400, Grocery: 1900, Pharmacy: 1300 }, merchantsVisited: ['Keells', 'Cargills', 'Lanka Hospitals', 'Laugfs'] },
-  { id: 'e6', name: 'Thilini Dissanayake', department: 'Sales', tier: 'Silver', status: 'Activated', phone: '+94731234567', dateJoined: '2026-02-20', savingsThisMonth: 4200, totalSavings: 12600, activationDate: '2026-02-22', lastActive: '2026-05-07', savingsByCategory: { Dining: 1600, Fuel: 1100, Grocery: 900, Pharmacy: 600 }, merchantsVisited: ['Keells', 'Arpico'] },
-  { id: 'e7', name: 'Sandun Rathnayake', department: 'IT', tier: 'Gold', status: 'Activated', phone: '+94741234567', dateJoined: '2026-01-25', savingsThisMonth: 7800, totalSavings: 39000, activationDate: '2026-01-26', lastActive: '2026-05-10', savingsByCategory: { Dining: 3000, Fuel: 2000, Grocery: 1600, Pharmacy: 1200 }, merchantsVisited: ['Softlogic', 'Keells', 'Lanka Hospitals'] },
-  { id: 'e8', name: 'Malini Amarasinghe', department: 'Legal', tier: 'Silver', status: 'Pending', phone: '+94791234567', dateJoined: '2026-03-01', savingsThisMonth: 0, totalSavings: 0, activationDate: null, lastActive: '-', savingsByCategory: { Dining: 0, Fuel: 0, Grocery: 0, Pharmacy: 0 }, merchantsVisited: [] },
-  { id: 'e9', name: 'Kasun Kumara', department: 'Engineering', tier: 'Silver', status: 'Activated', phone: '+94711234568', dateJoined: '2026-02-15', savingsThisMonth: 3100, totalSavings: 9300, activationDate: '2026-02-17', lastActive: '2026-05-06', savingsByCategory: { Dining: 1200, Fuel: 800, Grocery: 700, Pharmacy: 400 }, merchantsVisited: ['Cargills', 'Keells'] },
-  { id: 'e10', name: 'Priya Maheswaran', department: 'HR', tier: 'Gold', status: 'Activated', phone: '+94771234568', dateJoined: '2026-01-18', savingsThisMonth: 8900, totalSavings: 44500, activationDate: '2026-01-19', lastActive: '2026-05-11', savingsByCategory: { Dining: 3400, Fuel: 2200, Grocery: 1900, Pharmacy: 1400 }, merchantsVisited: ['Keells', 'Lanka Hospitals', 'Cargills', 'Arpico'] },
-  { id: 'e11', name: 'Ajith Subasinghe', department: 'Finance', tier: 'Silver', status: 'Activated', phone: '+94751234568', dateJoined: '2026-03-10', savingsThisMonth: 2800, totalSavings: 5600, activationDate: '2026-03-12', lastActive: '2026-05-05', savingsByCategory: { Dining: 1100, Fuel: 700, Grocery: 600, Pharmacy: 400 }, merchantsVisited: ['Cargills', 'Laugfs'] },
-  { id: 'e12', name: 'Sachini Bandara', department: 'Marketing', tier: 'Gold', status: 'Activated', phone: '+94761234568', dateJoined: '2026-01-30', savingsThisMonth: 7500, totalSavings: 37500, activationDate: '2026-01-31', lastActive: '2026-05-09', savingsByCategory: { Dining: 2900, Fuel: 2000, Grocery: 1600, Pharmacy: 1000 }, merchantsVisited: ['Softlogic', 'Keells', 'Cargills'] },
-  { id: 'e13', name: 'Harsha Gunawardena', department: 'Operations', tier: 'Silver', status: 'Pending', phone: '+94781234568', dateJoined: '2026-03-20', savingsThisMonth: 0, totalSavings: 0, activationDate: null, lastActive: '-', savingsByCategory: { Dining: 0, Fuel: 0, Grocery: 0, Pharmacy: 0 }, merchantsVisited: [] },
-  { id: 'e14', name: 'Iresha Weerasinghe', department: 'Sales', tier: 'Silver', status: 'Activated', phone: '+94731234568', dateJoined: '2026-02-25', savingsThisMonth: 3500, totalSavings: 10500, activationDate: '2026-02-27', lastActive: '2026-05-08', savingsByCategory: { Dining: 1300, Fuel: 900, Grocery: 800, Pharmacy: 500 }, merchantsVisited: ['Keells', 'Arpico', 'Cargills'] },
-  { id: 'e15', name: 'Nuwan Jayasinghe', department: 'IT', tier: 'Gold', status: 'Activated', phone: '+94741234568', dateJoined: '2026-01-22', savingsThisMonth: 8200, totalSavings: 41000, activationDate: '2026-01-23', lastActive: '2026-05-10', savingsByCategory: { Dining: 3100, Fuel: 2100, Grocery: 1700, Pharmacy: 1300 }, merchantsVisited: ['Keells', 'Lanka Hospitals', 'Softlogic', 'Laugfs'] },
-  { id: 'e16', name: 'Samanthi Edirisinghe', department: 'Legal', tier: 'Silver', status: 'Activated', phone: '+94791234568', dateJoined: '2026-03-05', savingsThisMonth: 2500, totalSavings: 7500, activationDate: '2026-03-07', lastActive: '2026-05-04', savingsByCategory: { Dining: 1000, Fuel: 600, Grocery: 600, Pharmacy: 300 }, merchantsVisited: ['Cargills'] },
-  { id: 'e17', name: 'Bimal Seneviratne', department: 'Engineering', tier: 'Gold', status: 'Activated', phone: '+94711234569', dateJoined: '2026-01-12', savingsThisMonth: 9500, totalSavings: 47500, activationDate: '2026-01-13', lastActive: '2026-05-11', savingsByCategory: { Dining: 3600, Fuel: 2500, Grocery: 2000, Pharmacy: 1400 }, merchantsVisited: ['Keells', 'Cargills', 'Lanka Hospitals', 'Laugfs', 'Arpico'] },
-  { id: 'e18', name: 'Chamali Liyanage', department: 'Finance', tier: 'Silver', status: 'Pending', phone: '+94751234569', dateJoined: '2026-04-01', savingsThisMonth: 0, totalSavings: 0, activationDate: null, lastActive: '-', savingsByCategory: { Dining: 0, Fuel: 0, Grocery: 0, Pharmacy: 0 }, merchantsVisited: [] },
-  { id: 'e19', name: 'Dinesh Karunaratne', department: 'Marketing', tier: 'Silver', status: 'Activated', phone: '+94761234569', dateJoined: '2026-03-15', savingsThisMonth: 2900, totalSavings: 5800, activationDate: '2026-03-17', lastActive: '2026-05-07', savingsByCategory: { Dining: 1100, Fuel: 700, Grocery: 700, Pharmacy: 400 }, merchantsVisited: ['Keells', 'Cargills'] },
-  { id: 'e20', name: 'Vindya Ranasinghe', department: 'HR', tier: 'Gold', status: 'Activated', phone: '+94771234569', dateJoined: '2026-01-28', savingsThisMonth: 7900, totalSavings: 39500, activationDate: '2026-01-29', lastActive: '2026-05-09', savingsByCategory: { Dining: 3000, Fuel: 2100, Grocery: 1700, Pharmacy: 1100 }, merchantsVisited: ['Keells', 'Lanka Hospitals', 'Arpico'] },
+  { id: 'e1', name: 'Nimal Perera', department: 'Engineering', tier: 'Gold', status: 'Activated', phone: '+94712345678', dateJoined: '2026-01-15', savingsThisMonth: 8400, totalSavings: 42000, activationDate: '2026-01-16', lastActive: '2026-05-11', savingsByCategory: { Dining: 3200, Bar: 900, Cafe: 700, Grocery: 1800, Pharmacy: 1300, Retail: 500 }, merchantsVisited: ['Keells', 'Cargills', 'Lanka Hospitals', 'Laugfs', 'Arpico'] },
+  { id: 'e2', name: 'Kavindi Silva', department: 'HR', tier: 'Gold', status: 'Activated', phone: '+94771234567', dateJoined: '2026-01-20', savingsThisMonth: 7200, totalSavings: 36000, activationDate: '2026-01-21', lastActive: '2026-05-09', savingsByCategory: { Dining: 2800, Bar: 800, Cafe: 600, Grocery: 1500, Pharmacy: 1000, Retail: 500 }, merchantsVisited: ['Keells', 'Lanka Hospitals', 'Softlogic'] },
+  { id: 'e3', name: 'Roshan Fernando', department: 'Finance', tier: 'Silver', status: 'Activated', phone: '+94751234567', dateJoined: '2026-02-01', savingsThisMonth: 3800, totalSavings: 15200, activationDate: '2026-02-03', lastActive: '2026-05-08', savingsByCategory: { Dining: 1400, Bar: 400, Cafe: 300, Grocery: 1000, Pharmacy: 500, Retail: 200 }, merchantsVisited: ['Cargills', 'Laugfs', 'Keells'] },
+  { id: 'e4', name: 'Dilini Jayawardena', department: 'Marketing', tier: 'Silver', status: 'Pending', phone: '+94761234567', dateJoined: '2026-02-10', savingsThisMonth: 0, totalSavings: 0, activationDate: null, lastActive: '-', savingsByCategory: { Dining: 0, Bar: 0, Cafe: 0, Grocery: 0, Pharmacy: 0, Retail: 0 }, merchantsVisited: [] },
+  { id: 'e5', name: 'Chamara Wickramasinghe', department: 'Operations', tier: 'Gold', status: 'Activated', phone: '+94781234567', dateJoined: '2026-01-05', savingsThisMonth: 9100, totalSavings: 45500, activationDate: '2026-01-06', lastActive: '2026-05-11', savingsByCategory: { Dining: 3500, Bar: 1000, Cafe: 800, Grocery: 1900, Pharmacy: 1300, Retail: 600 }, merchantsVisited: ['Keells', 'Cargills', 'Lanka Hospitals', 'Laugfs'] },
+  { id: 'e6', name: 'Thilini Dissanayake', department: 'Sales', tier: 'Silver', status: 'Activated', phone: '+94731234567', dateJoined: '2026-02-20', savingsThisMonth: 4200, totalSavings: 12600, activationDate: '2026-02-22', lastActive: '2026-05-07', savingsByCategory: { Dining: 1600, Bar: 500, Cafe: 400, Grocery: 900, Pharmacy: 600, Retail: 200 }, merchantsVisited: ['Keells', 'Arpico'] },
+  { id: 'e7', name: 'Sandun Rathnayake', department: 'IT', tier: 'Gold', status: 'Activated', phone: '+94741234567', dateJoined: '2026-01-25', savingsThisMonth: 7800, totalSavings: 39000, activationDate: '2026-01-26', lastActive: '2026-05-10', savingsByCategory: { Dining: 3000, Bar: 850, Cafe: 700, Grocery: 1600, Pharmacy: 1200, Retail: 450 }, merchantsVisited: ['Softlogic', 'Keells', 'Lanka Hospitals'] },
+  { id: 'e8', name: 'Malini Amarasinghe', department: 'Legal', tier: 'Silver', status: 'Pending', phone: '+94791234567', dateJoined: '2026-03-01', savingsThisMonth: 0, totalSavings: 0, activationDate: null, lastActive: '-', savingsByCategory: { Dining: 0, Bar: 0, Cafe: 0, Grocery: 0, Pharmacy: 0, Retail: 0 }, merchantsVisited: [] },
+  { id: 'e9', name: 'Kasun Kumara', department: 'Engineering', tier: 'Silver', status: 'Activated', phone: '+94711234568', dateJoined: '2026-02-15', savingsThisMonth: 3100, totalSavings: 9300, activationDate: '2026-02-17', lastActive: '2026-05-06', savingsByCategory: { Dining: 1200, Bar: 350, Cafe: 300, Grocery: 700, Pharmacy: 400, Retail: 150 }, merchantsVisited: ['Cargills', 'Keells'] },
+  { id: 'e10', name: 'Priya Maheswaran', department: 'HR', tier: 'Gold', status: 'Activated', phone: '+94771234568', dateJoined: '2026-01-18', savingsThisMonth: 8900, totalSavings: 44500, activationDate: '2026-01-19', lastActive: '2026-05-11', savingsByCategory: { Dining: 3400, Bar: 950, Cafe: 750, Grocery: 1900, Pharmacy: 1400, Retail: 500 }, merchantsVisited: ['Keells', 'Lanka Hospitals', 'Cargills', 'Arpico'] },
+  { id: 'e11', name: 'Ajith Subasinghe', department: 'Finance', tier: 'Silver', status: 'Activated', phone: '+94751234568', dateJoined: '2026-03-10', savingsThisMonth: 2800, totalSavings: 5600, activationDate: '2026-03-12', lastActive: '2026-05-05', savingsByCategory: { Dining: 1100, Bar: 300, Cafe: 250, Grocery: 600, Pharmacy: 400, Retail: 150 }, merchantsVisited: ['Cargills', 'Laugfs'] },
+  { id: 'e12', name: 'Sachini Bandara', department: 'Marketing', tier: 'Gold', status: 'Activated', phone: '+94761234568', dateJoined: '2026-01-30', savingsThisMonth: 7500, totalSavings: 37500, activationDate: '2026-01-31', lastActive: '2026-05-09', savingsByCategory: { Dining: 2900, Bar: 850, Cafe: 700, Grocery: 1600, Pharmacy: 1000, Retail: 450 }, merchantsVisited: ['Softlogic', 'Keells', 'Cargills'] },
+  { id: 'e13', name: 'Harsha Gunawardena', department: 'Operations', tier: 'Silver', status: 'Pending', phone: '+94781234568', dateJoined: '2026-03-20', savingsThisMonth: 0, totalSavings: 0, activationDate: null, lastActive: '-', savingsByCategory: { Dining: 0, Bar: 0, Cafe: 0, Grocery: 0, Pharmacy: 0, Retail: 0 }, merchantsVisited: [] },
+  { id: 'e14', name: 'Iresha Weerasinghe', department: 'Sales', tier: 'Silver', status: 'Activated', phone: '+94731234568', dateJoined: '2026-02-25', savingsThisMonth: 3500, totalSavings: 10500, activationDate: '2026-02-27', lastActive: '2026-05-08', savingsByCategory: { Dining: 1300, Bar: 400, Cafe: 300, Grocery: 800, Pharmacy: 500, Retail: 200 }, merchantsVisited: ['Keells', 'Arpico', 'Cargills'] },
+  { id: 'e15', name: 'Nuwan Jayasinghe', department: 'IT', tier: 'Gold', status: 'Activated', phone: '+94741234568', dateJoined: '2026-01-22', savingsThisMonth: 8200, totalSavings: 41000, activationDate: '2026-01-23', lastActive: '2026-05-10', savingsByCategory: { Dining: 3100, Bar: 900, Cafe: 700, Grocery: 1700, Pharmacy: 1300, Retail: 500 }, merchantsVisited: ['Keells', 'Lanka Hospitals', 'Softlogic', 'Laugfs'] },
+  { id: 'e16', name: 'Samanthi Edirisinghe', department: 'Legal', tier: 'Silver', status: 'Activated', phone: '+94791234568', dateJoined: '2026-03-05', savingsThisMonth: 2500, totalSavings: 7500, activationDate: '2026-03-07', lastActive: '2026-05-04', savingsByCategory: { Dining: 1000, Bar: 250, Cafe: 200, Grocery: 600, Pharmacy: 300, Retail: 150 }, merchantsVisited: ['Cargills'] },
+  { id: 'e17', name: 'Bimal Seneviratne', department: 'Engineering', tier: 'Gold', status: 'Activated', phone: '+94711234569', dateJoined: '2026-01-12', savingsThisMonth: 9500, totalSavings: 47500, activationDate: '2026-01-13', lastActive: '2026-05-11', savingsByCategory: { Dining: 3600, Bar: 1100, Cafe: 850, Grocery: 2000, Pharmacy: 1400, Retail: 550 }, merchantsVisited: ['Keells', 'Cargills', 'Lanka Hospitals', 'Laugfs', 'Arpico'] },
+  { id: 'e18', name: 'Chamali Liyanage', department: 'Finance', tier: 'Silver', status: 'Pending', phone: '+94751234569', dateJoined: '2026-04-01', savingsThisMonth: 0, totalSavings: 0, activationDate: null, lastActive: '-', savingsByCategory: { Dining: 0, Bar: 0, Cafe: 0, Grocery: 0, Pharmacy: 0, Retail: 0 }, merchantsVisited: [] },
+  { id: 'e19', name: 'Dinesh Karunaratne', department: 'Marketing', tier: 'Silver', status: 'Activated', phone: '+94761234569', dateJoined: '2026-03-15', savingsThisMonth: 2900, totalSavings: 5800, activationDate: '2026-03-17', lastActive: '2026-05-07', savingsByCategory: { Dining: 1100, Bar: 300, Cafe: 250, Grocery: 700, Pharmacy: 400, Retail: 150 }, merchantsVisited: ['Keells', 'Cargills'] },
+  { id: 'e20', name: 'Vindya Ranasinghe', department: 'HR', tier: 'Gold', status: 'Activated', phone: '+94771234569', dateJoined: '2026-01-28', savingsThisMonth: 7900, totalSavings: 39500, activationDate: '2026-01-29', lastActive: '2026-05-09', savingsByCategory: { Dining: 3000, Bar: 900, Cafe: 700, Grocery: 1700, Pharmacy: 1100, Retail: 500 }, merchantsVisited: ['Keells', 'Lanka Hospitals', 'Arpico'] },
 ];
 
 const BULK_PREVIEW_ROWS: BulkRow[] = [
@@ -355,7 +355,7 @@ function AddEmployeeForm({ onBack, onSuccess }: { onBack: () => void; onSuccess:
       totalSavings: 0,
       activationDate: null,
       lastActive: '-',
-      savingsByCategory: { Dining: 0, Fuel: 0, Grocery: 0, Pharmacy: 0 },
+      savingsByCategory: { Dining: 0, Bar: 0, Cafe: 0, Grocery: 0, Pharmacy: 0, Retail: 0 },
       merchantsVisited: [],
     };
     setSubmitted(true);
@@ -649,10 +649,12 @@ function EmployeeDetailView({ employee, onBack, onTierChange, onRemove }: {
   employee: Employee; onBack: () => void; onTierChange: (id: string, tier: Tier) => void; onRemove: (emp: Employee) => void;
 }) {
   const categoryConfig = [
-    { key: 'Dining' as const, color: '#E35000', icon: Utensils },
-    { key: 'Fuel' as const, color: '#3B82F6', icon: Fuel },
-    { key: 'Grocery' as const, color: '#10B981', icon: ShoppingCart },
+    { key: 'Dining'   as const, color: '#E35000', icon: Utensils },
+    { key: 'Bar'      as const, color: '#3B82F6', icon: GlassWater },
+    { key: 'Cafe'     as const, color: '#F97316', icon: Coffee },
+    { key: 'Grocery'  as const, color: '#10B981', icon: ShoppingCart },
     { key: 'Pharmacy' as const, color: '#8B5CF6', icon: Pill },
+    { key: 'Retail'   as const, color: '#F59E0B', icon: ShoppingBag },
   ];
   const totalCat = Object.values(employee.savingsByCategory).reduce((a, b) => a + b, 0);
   const maxCat = Math.max(...Object.values(employee.savingsByCategory), 1);
