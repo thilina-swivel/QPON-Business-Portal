@@ -171,7 +171,7 @@ export function SignUp({ onSignUp, onNavigateToSignIn }: SignUpProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="hrName" className="dark:text-gray-200 transition-colors duration-300">HR Manager Full Name <span className="text-red-500">*</span></Label>
+            <Label htmlFor="hrName" className="dark:text-gray-200 transition-colors duration-300">Full Name <span className="text-red-500">*</span></Label>
             <div className="relative">
               <div className="absolute left-3 top-2.5 text-gray-400 dark:text-gray-500 transition-colors duration-300">
                 <User size={18} />

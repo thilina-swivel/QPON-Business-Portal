@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Users, BarChart3, CreditCard, Menu, X, User, Moon, Sun, Bell, HelpCircle } from 'lucide-react';
+import { LayoutDashboard, Users, BarChart3, CreditCard, Menu, X, User, Moon, Sun, HelpCircle, LogOut } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { Button } from './ui/button';
 import logoImage from '../../assets/logo.png';
@@ -16,6 +16,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from './ui/tooltip';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from './ui/dialog';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -27,86 +34,16 @@ interface LayoutProps {
 
 export function Layout({ children, currentView, onChangeView, onLogout, onShowGuide }: LayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const [showMobileLogoutDialog, setShowMobileLogoutDialog] = React.useState(false);
   const [isCollapsed] = React.useState(false);
   const [isDarkMode, setIsDarkMode] = React.useState(() => {
     const savedMode = localStorage.getItem('qp_dark_mode');
     return savedMode === 'true';
   });
-  const [unreadCount] = React.useState(3);
-
-
   const merchantData = {
     name: 'Axora Technologies',
     planName: 'Gold Plan · 500 Seats'
   };
-
-  // Sample notifications data
-  const notifications = [
-    {
-      id: 1,
-      type: 'purchase',
-      title: 'New Coupon Purchase',
-      message: '5 coupons purchased for "50% Off Deal"',
-      time: '5 min ago',
-      unread: true
-    },
-    {
-      id: 2,
-      type: 'expiration',
-      title: 'Deal Expiring Soon',
-      message: '"Weekend Special" expires in 2 days',
-      time: '1 hour ago',
-      unread: true
-    },
-    {
-      id: 3,
-      type: 'purchase',
-      title: 'Coupon Redeemed',
-      message: '3 coupons redeemed at your location',
-      time: '3 hours ago',
-      unread: true
-    },
-    {
-      id: 4,
-      type: 'expiration',
-      title: 'Deal Expired',
-      message: '"Happy Hour Deal" has ended',
-      time: '1 day ago',
-      unread: false
-    },
-    {
-      id: 5,
-      type: 'purchase',
-      title: 'New Coupon Purchase',
-      message: '2 coupons purchased for "Lunch Special"',
-      time: '2 days ago',
-      unread: false
-    },
-    {
-      id: 6,
-      type: 'purchase',
-      title: 'Bulk Purchase',
-      message: '10 coupons purchased for "Dinner Deal"',
-      time: '3 days ago',
-      unread: false
-    },
-    {
-      id: 7,
-      type: 'expiration',
-      title: 'Deal Expiring Soon',
-      message: '"Breakfast Combo" expires in 1 day',
-      time: '3 days ago',
-      unread: false
-    },
-    {
-      id: 8,
-      type: 'purchase',
-      title: 'Coupon Redeemed',
-      message: '7 coupons redeemed at your location',
-      time: '4 days ago',
-      unread: false
-    }
-  ];
 
   // Apply dark class to document root
   React.useEffect(() => {
@@ -159,10 +96,6 @@ export function Layout({ children, currentView, onChangeView, onLogout, onShowGu
             isCollapsed && !isMobile ? "" : "mr-3",
             isActive && !item.disabled ? "text-[#E35000]" : item.disabled ? "text-gray-600" : "text-gray-400 group-hover/navitem:text-white"
           )} />
-          {/* Notification badge for Wallet placeholder */}
-          {item.id === 'analytics' && unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#E35000] rounded-full" />
-          )}
         </span>
         {(!isCollapsed || isMobile) && (
           <span className="flex-1 text-left">{item.label}</span>
@@ -204,7 +137,7 @@ export function Layout({ children, currentView, onChangeView, onLogout, onShowGu
 
       </nav>
 
-      {/* Bottom section: Guide + User Account */}
+      {/* Bottom section: Guide + Logout */}
       <div className={cn("mt-auto space-y-3", isCollapsed && !isMobile ? "p-2" : isMobile ? "p-4" : "p-4")}>
 
         {/* Getting Started guide button */}
@@ -215,6 +148,17 @@ export function Layout({ children, currentView, onChangeView, onLogout, onShowGu
           >
             <HelpCircle className="w-4 h-4 flex-shrink-0" />
             <span>Getting Started</span>
+          </button>
+        )}
+
+        {/* Logout button — mobile only */}
+        {onLogout && isMobile && (
+          <button
+            onClick={() => { setIsMobileMenuOpen(false); setShowMobileLogoutDialog(true); }}
+            className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors text-xs font-medium"
+          >
+            <LogOut className="w-4 h-4 flex-shrink-0" />
+            {(!isCollapsed || isMobile) && <span>Log Out</span>}
           </button>
         )}
       </div>
@@ -250,101 +194,6 @@ export function Layout({ children, currentView, onChangeView, onLogout, onShowGu
               <Moon className="h-5 w-5 text-white" />
             )}
           </Button>
-          
-          {/* Notifications Dropdown - Mobile */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full hover:bg-white/10 transition-colors relative w-10 h-10 flex items-center justify-center flex-shrink-0"
-                aria-label="Notifications"
-              >
-                <Bell className="h-5 w-5 text-white" />
-                {unreadCount > 0 && (
-                  <span className="absolute top-0 right-0 bg-[#E35000] text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-semibold shadow-md">
-                    {unreadCount}
-                  </span>
-                )}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[calc(100vw-2rem)] max-w-md bg-white dark:bg-[#141414] border-gray-200 dark:border-[#2A2A2A] dark:shadow-2xl p-0 mr-4">
-              <DropdownMenuLabel className="border-b border-gray-200 dark:border-[#2A2A2A] py-3 px-4">
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-[#0E2250] dark:text-white">Notifications</span>
-                  {unreadCount > 0 && (
-                    <span className="text-xs bg-[#E35000] text-white px-2 py-0.5 rounded-full">
-                      {unreadCount} new
-                    </span>
-                  )}
-                </div>
-              </DropdownMenuLabel>
-              <div className="max-h-[400px] overflow-y-auto scroll-smooth modern-scrollbar">
-                <style>{`
-                  .modern-scrollbar::-webkit-scrollbar {
-                    width: 4px;
-                  }
-                  .modern-scrollbar::-webkit-scrollbar-track {
-                    background: transparent;
-                    margin: 4px 0;
-                  }
-                  .modern-scrollbar::-webkit-scrollbar-thumb {
-                    background: transparent;
-                    border-radius: 10px;
-                    transition: background 0.2s ease;
-                  }
-                  .modern-scrollbar:hover::-webkit-scrollbar-thumb {
-                    background: rgba(156, 163, 175, 0.3);
-                  }
-                  .modern-scrollbar::-webkit-scrollbar-thumb:hover {
-                    background: rgba(107, 114, 128, 0.5);
-                  }
-                  .dark .modern-scrollbar:hover::-webkit-scrollbar-thumb {
-                    background: rgba(156, 163, 175, 0.2);
-                  }
-                  .dark .modern-scrollbar::-webkit-scrollbar-thumb:hover {
-                    background: rgba(156, 163, 175, 0.4);
-                  }
-                `}</style>
-                {notifications.map((notification, index) => (
-                  <div key={notification.id}>
-                    <div className={`px-4 py-3 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors ${notification.unread ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}>
-                      <div className="flex items-start gap-3">
-                        <div className={`mt-0.5 p-2 rounded-full ${notification.type === 'purchase' ? 'bg-green-100 dark:bg-green-900/30' : 'bg-orange-100 dark:bg-orange-900/30'}`}>
-                          {notification.type === 'purchase' ? (
-                            <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                            </svg>
-                          ) : (
-                            <svg className="w-4 h-4 text-orange-600 dark:text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-[#0E2250] dark:text-white mb-0.5">
-                            {notification.title}
-                          </p>
-                          <p className="text-xs text-gray-600 dark:text-blue-200/70 mb-1">
-                            {notification.message}
-                          </p>
-                          <p className="text-xs text-gray-400 dark:text-gray-500">
-                            {notification.time}
-                          </p>
-                        </div>
-                        {notification.unread && (
-                          <div className="w-2 h-2 bg-[#E35000] rounded-full mt-2"></div>
-                        )}
-                      </div>
-                    </div>
-                    {index < notifications.length - 1 && (
-                      <div className="border-b border-gray-100 dark:border-[#2A2A2A]"></div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </DropdownMenuContent>
-          </DropdownMenu>
           
           {/* Merchant Avatar */}
           <Button
@@ -422,6 +271,34 @@ export function Layout({ children, currentView, onChangeView, onLogout, onShowGu
           })}
         </div>
       )}
+
+      {/* Mobile Logout Confirmation Dialog */}
+      <Dialog open={showMobileLogoutDialog} onOpenChange={setShowMobileLogoutDialog}>
+        <DialogContent className="sm:max-w-sm bg-white dark:bg-[#141414] border-gray-200 dark:border-[#2A2A2A]">
+          <DialogHeader>
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center flex-shrink-0">
+                <LogOut className="w-5 h-5 text-red-500" />
+              </div>
+              <DialogTitle className="text-[#0E2250] dark:text-white">Log Out?</DialogTitle>
+            </div>
+          </DialogHeader>
+          <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed py-1">
+            Are you sure you want to log out of your QPON Business Portal account?
+          </p>
+          <DialogFooter className="gap-2 mt-2">
+            <Button variant="outline" onClick={() => setShowMobileLogoutDialog(false)} className="flex-1 text-sm border-gray-300 dark:border-[#2A2A2A] dark:text-white dark:hover:bg-white/10">
+              Cancel
+            </Button>
+            <Button
+              onClick={() => { setShowMobileLogoutDialog(false); onLogout?.(); }}
+              className="flex-1 text-sm bg-red-500 hover:bg-red-600 text-white"
+            >
+              Log Out
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
     </TooltipProvider>
   );

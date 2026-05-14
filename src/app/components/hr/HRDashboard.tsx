@@ -20,9 +20,9 @@ const COMPANY = 'Axora Technologies';
 const CURRENT_MONTH = 'May 2026';
 
 const kpiData = {
-  totalSeats: { silver: 600, gold: 250, total: 850 },
-  activated: 812,
-  pending: 38,
+  totalSeats: { silver: 200, gold: 150, total: 500 },
+  activated: 312,
+  pending: 188,
   totalSavings: 3591000,
   avgSaving: 4421,
   cost: 510000,

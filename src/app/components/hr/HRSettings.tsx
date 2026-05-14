@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import {
   User, Mail, Phone, Building, MapPin, Edit2, Save, XCircle,
-  Upload, Globe, Bell, Shield, Crown, Check, ChevronRight,
+  Upload, Globe, Shield, Crown, Check, ChevronRight,
   Eye, EyeOff, CheckCircle2, AlertCircle, Info, Loader2, Calendar,
   ShieldCheck, AlertTriangle,
 } from 'lucide-react';
@@ -142,13 +142,6 @@ export function HRSettings({ onNavigate, onChangePlan }: HRSettingsProps) {
   const [otpVerifyTarget, setOtpVerifyTarget] = useState<'email' | 'mobile' | null>(null);
   const [otpVerify, setOtpVerify] = useState('');
 
-  // Notifications
-  const [notifyInvoice, setNotifyInvoice] = useState(true);
-  const [notifyActivation, setNotifyActivation] = useState(true);
-  const [notifyRedemption, setNotifyRedemption] = useState(false);
-  const [notifyOverdue, setNotifyOverdue] = useState(true);
-  const [isSavingNotifs, setIsSavingNotifs] = useState(false);
-
   const handleChange = (field: string, value: string) => {
     setProfile(prev => ({ ...prev, [field]: value }));
     if (field === 'workEmail') setVerifiedEmail(false);
@@ -212,28 +205,6 @@ export function HRSettings({ onNavigate, onChangePlan }: HRSettingsProps) {
 
   const cardHead = 'border-b border-gray-100 dark:border-[#2A2A2A] bg-gradient-to-r from-gray-50 to-white dark:from-[#0A0A0A] dark:to-[#141414] transition-colors duration-300 pt-4 pb-3 px-5';
 
-  const Toggle = ({ value, onToggle }: { value: boolean; onToggle: () => void }) => (
-    <button
-      onClick={onToggle}
-      role="switch"
-      aria-checked={value}
-      className="relative flex-shrink-0 rounded-full transition-colors duration-200 focus:outline-none"
-      style={{ width: 44, height: 24, background: value ? '#E35000' : '#D1D5DB' }}
-    >
-      <span
-        className="absolute rounded-full bg-white"
-        style={{
-          width: 18,
-          height: 18,
-          top: 3,
-          left: 3,
-          boxShadow: '0 1px 4px rgba(0,0,0,0.25)',
-          transform: value ? 'translateX(20px)' : 'translateX(0px)',
-          transition: 'transform 0.2s ease',
-        }}
-      />
-    </button>
-  );
 
   return (
     <div className="max-w-6xl mx-auto pb-20 lg:pb-0 space-y-6">
@@ -443,37 +414,6 @@ export function HRSettings({ onNavigate, onChangePlan }: HRSettingsProps) {
             <InfoItem icon={Shield} label="Registration No." field="regNo" value={profile.regNo} isEditing={isEditing} onChange={handleChange} />
             <InfoItem icon={MapPin} label="Address" field="address" value={profile.address} isEditing={isEditing} onChange={handleChange} />
             <InfoItem icon={Globe} label="Website" field="website" value={profile.website} type="url" isEditing={isEditing} onChange={handleChange} />
-          </CardContent>
-        </Card>
-
-        {/* ── Row 2 right: Notifications ── */}
-        <Card className="border-none shadow-sm bg-white dark:bg-gradient-to-br dark:from-[#0A0A0A] dark:to-[#141414] transition-colors duration-300">
-          <CardHeader className={cardHead}>
-            <div className="flex items-center gap-2">
-              <Bell className="w-4 h-4 text-gray-400" />
-              <CardTitle className="text-[#0E2250] dark:text-white text-base transition-colors duration-300">Notifications</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="p-4 sm:p-5 space-y-4">
-            {[
-              { label: 'Invoice issued',      value: notifyInvoice,    toggle: () => setNotifyInvoice(v => !v) },
-              { label: 'Employee activation', value: notifyActivation, toggle: () => setNotifyActivation(v => !v) },
-              { label: 'Redemptions digest',  value: notifyRedemption, toggle: () => setNotifyRedemption(v => !v) },
-              { label: 'Overdue reminders',   value: notifyOverdue,    toggle: () => setNotifyOverdue(v => !v) },
-            ].map(pref => (
-              <div key={pref.label} className="flex items-center justify-between gap-3">
-                <p className="text-xs font-medium text-gray-700 dark:text-gray-300">{pref.label}</p>
-                <Toggle value={pref.value} onToggle={pref.toggle} />
-              </div>
-            ))}
-            <Button
-              size="sm"
-              onClick={() => { setIsSavingNotifs(true); setTimeout(() => { setIsSavingNotifs(false); toast.success('Preferences saved'); }, 700); }}
-              disabled={isSavingNotifs}
-              className="w-full bg-[#E35000] hover:bg-[#c44500] text-white text-xs mt-2"
-            >
-              {isSavingNotifs ? 'Saving…' : 'Save Preferences'}
-            </Button>
           </CardContent>
         </Card>
 

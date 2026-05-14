@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  FileText, Download, CreditCard, TrendingUp, Mail, Bell,
+  FileText, Download, CreditCard, TrendingUp, Mail,
   Building2, CheckCircle2, Clock, AlertTriangle,
   AlertCircle, Info, RefreshCw,
 } from 'lucide-react';
@@ -109,8 +109,6 @@ export function HRBilling({ onNavigate: _onNavigate }: HRBillingProps) {
   const [paymentMethod, setPaymentMethod] = useState('invoice');
   const [invoiceEmail, setInvoiceEmail]   = useState('finance@axoratech.com');
   const [ccEmail, setCcEmail]             = useState('');
-  const [notifyInvoice, setNotifyInvoice] = useState(true);
-  const [notifyOverdue, setNotifyOverdue] = useState(true);
   const [savingSettings, setSavingSettings] = useState(false);
 
   const showToast = (msg: string, type: 'success' | 'info' = 'success') => {
@@ -531,56 +529,6 @@ export function HRBilling({ onNavigate: _onNavigate }: HRBillingProps) {
                 />
                 <p className="text-[11px] text-gray-400 mt-1.5">Secondary recipient copied on all billing communications</p>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Notification Preferences */}
-          <Card className="border-none shadow-md bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C]">
-            <CardHeader className={cardHead}>
-              <div className="flex items-center gap-2">
-                <Bell className="w-4 h-4 text-gray-400" />
-                <CardTitle className="text-[#0E2250] dark:text-white text-base sm:text-[18px] transition-colors duration-300">Notification Preferences</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="p-5 space-y-5">
-              {[
-                {
-                  label: 'Invoice issued',
-                  desc:  'Notify when a new invoice is generated on the 1st of each month',
-                  value: notifyInvoice,
-                  toggle: () => setNotifyInvoice(v => !v),
-                },
-                {
-                  label: 'Overdue reminders',
-                  desc:  'Email reminders at due date, +7 days, and +14 days if payment is not received',
-                  value: notifyOverdue,
-                  toggle: () => setNotifyOverdue(v => !v),
-                },
-              ].map(pref => (
-                <div key={pref.label} className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">{pref.label}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">{pref.desc}</p>
-                  </div>
-                  <button
-                    onClick={pref.toggle}
-                    aria-checked={pref.value}
-                    role="switch"
-                    className="relative flex-shrink-0 rounded-full transition-colors duration-200 focus:outline-none mt-0.5"
-                    style={{ width: 44, height: 24, background: pref.value ? '#E35000' : '#D1D5DB' }}
-                  >
-                    <span
-                      className="absolute rounded-full bg-white"
-                      style={{
-                        width: 18, height: 18, top: 3, left: 3,
-                        boxShadow: '0 1px 4px rgba(0,0,0,0.25)',
-                        transform: pref.value ? 'translateX(20px)' : 'translateX(0px)',
-                        transition: 'transform 0.2s ease',
-                      }}
-                    />
-                  </button>
-                </div>
-              ))}
             </CardContent>
           </Card>
 
