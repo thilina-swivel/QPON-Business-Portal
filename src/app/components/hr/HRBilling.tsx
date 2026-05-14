@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
-  FileText, Download, CreditCard, Mail, Bell,
-  Building2, Users, CheckCircle2, Clock, AlertTriangle,
-  AlertCircle, Info, FileSpreadsheet, RefreshCw,
+  FileText, Download, CreditCard, TrendingUp, Mail, Bell,
+  Building2, CheckCircle2, Clock, AlertTriangle,
+  AlertCircle, Info, RefreshCw,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Skeleton } from '../ui/skeleton';
@@ -40,10 +40,8 @@ const INVOICES: Invoice[] = [
 ];
 
 const PAYMENT_METHODS = [
-  { id: 'invoice', label: 'Company Invoice',    icon: Building2,    desc: 'Monthly invoice issued on the 1st; pay by bank transfer within 30 days' },
-  { id: 'card',    label: 'Credit / Debit Card', icon: CreditCard,   desc: 'Add a card once — auto-charged on the 1st of each month' },
-  { id: 'payroll', label: 'Payroll Deduction',   icon: Users,        desc: '50/50 cost split; download deduction CSV on the 1st of each month for payroll' },
-  { id: 'po',      label: 'Purchase Order',      icon: FileText,     desc: 'Provide a PO number; QPON invoices will include the PO reference' },
+  { id: 'invoice', label: 'Company Invoice',    icon: Building2,  desc: 'Monthly invoice issued on the 1st; pay by bank transfer within 30 days', gatewayNote: '' },
+  { id: 'card',    label: 'Credit / Debit Card', icon: CreditCard, desc: 'Add a card once — auto-charged on the 1st of each month', gatewayNote: 'Processed via Gene Payment Gateway' },
 ];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -104,11 +102,11 @@ export function HRBilling({ onNavigate: _onNavigate }: HRBillingProps) {
   const [activeTab, setActiveTab]                 = useState<'invoices' | 'settings'>('invoices');
   const [downloadingId, setDownloadingId]         = useState<string | null>(null);
   const [showOverdueBanner, setShowOverdueBanner] = useState(true);
+  const [failedPayment, setFailedPayment]         = useState(true);
   const [toast, setToast]                         = useState<{ msg: string; type: 'success' | 'info' } | null>(null);
 
   // Settings state
   const [paymentMethod, setPaymentMethod] = useState('invoice');
-  const [poNumber, setPoNumber]           = useState('');
   const [invoiceEmail, setInvoiceEmail]   = useState('finance@axoratech.com');
   const [ccEmail, setCcEmail]             = useState('');
   const [notifyInvoice, setNotifyInvoice] = useState(true);
@@ -178,6 +176,33 @@ export function HRBilling({ onNavigate: _onNavigate }: HRBillingProps) {
       {activeTab === 'invoices' && (
         <div className="space-y-6">
 
+          {/* Failed payment banner */}
+          {failedPayment && (
+            <div className="flex items-start gap-3 p-4 rounded-xl bg-red-50 dark:bg-red-900/10 border border-red-300 dark:border-red-700/50">
+              <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-red-800 dark:text-red-300">
+                  Your last payment failed. Update your payment method to avoid suspension.
+                </p>
+                <p className="text-xs text-red-600 dark:text-red-400 mt-0.5">
+                  Access continues until <strong>Jun 15, 2026</strong>. Update by <strong>Jun 15, 2026</strong> to avoid suspension.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <button
+                  onClick={() => setActiveTab('settings')}
+                  className="text-xs font-semibold text-white bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-lg transition-colors"
+                >
+                  Update Now
+                </button>
+                <button
+                  onClick={() => setFailedPayment(false)}
+                  className="text-red-400 hover:text-red-600 dark:hover:text-red-300 transition-colors text-lg leading-none px-1"
+                >×</button>
+              </div>
+            </div>
+          )}
+
           {/* Overdue banner */}
           {overdueInvoices.length > 0 && showOverdueBanner && (
             <div className="flex items-start gap-3 p-4 rounded-xl bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/40">
@@ -197,32 +222,69 @@ export function HRBilling({ onNavigate: _onNavigate }: HRBillingProps) {
             </div>
           )}
 
-          {/* KPI cards — minimal */}
+          {/* KPI cards */}
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-
-            <Card className="border border-gray-200 dark:border-[#2A2A2A] shadow-md bg-white dark:bg-[#141414] rounded-xl">
-              <CardContent className="p-4">
-                <p className="text-[10px] font-semibold text-amber-500 uppercase tracking-widest mb-2">Current Month Due</p>
-                <p className="text-xl font-bold text-[#0E2250] dark:text-white">{fmtShort(currentPending?.total ?? 0)}</p>
-                <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">Due May 31, 2026</p>
-              </CardContent>
-            </Card>
-
-            <Card className="border border-gray-200 dark:border-[#2A2A2A] shadow-md bg-white dark:bg-[#141414] rounded-xl">
-              <CardContent className="p-4">
-                <p className="text-[10px] font-semibold text-blue-500 uppercase tracking-widest mb-2">YTD Spend</p>
-                <p className="text-xl font-bold text-[#0E2250] dark:text-white">{fmtShort(ytdTotal)}</p>
-                <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">Jan – May 2026</p>
-              </CardContent>
-            </Card>
-
-            <Card className="col-span-2 lg:col-span-1 border border-gray-200 dark:border-[#2A2A2A] shadow-md bg-white dark:bg-[#141414] rounded-xl">
-              <CardContent className="p-4">
-                <p className="text-[10px] font-semibold text-emerald-500 uppercase tracking-widest mb-2">Next Invoice</p>
-                <p className="text-xl font-bold text-[#0E2250] dark:text-white">Jun 1, 2026</p>
-                <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">~{fmtShort(currentPending?.total ?? 0)} estimated</p>
-              </CardContent>
-            </Card>
+            {[
+              {
+                border: 'border-l-amber-500', bgLight: 'bg-amber-50',
+                label: 'Current Month Due',
+                tooltip: 'Total amount due for the current billing period, payable by the end of this month.',
+                value: fmtShort(currentPending?.total ?? 0),
+                badge: <div className="flex items-center gap-1 bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 px-2.5 py-1 rounded-full"><span className="text-xs font-semibold">Due May 31</span></div>,
+                sub: <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1 transition-colors duration-300">May 2026</p>,
+                span: '',
+              },
+              {
+                border: 'border-l-blue-500', bgLight: 'bg-blue-50',
+                label: 'YTD Spend',
+                tooltip: 'Total amount invoiced and paid from January to the current month this year.',
+                value: fmtShort(ytdTotal),
+                badge: <div className="flex items-center gap-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-2.5 py-1 rounded-full"><TrendingUp className="w-3 h-3" /><span className="text-xs font-semibold">+8%</span></div>,
+                sub: <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1 transition-colors duration-300">Jan – May 2026</p>,
+                span: '',
+              },
+              {
+                border: 'border-l-emerald-500', bgLight: 'bg-emerald-50',
+                label: 'Next Invoice',
+                tooltip: 'Estimated date and amount for the next automatically generated invoice.',
+                value: 'Jun 1, 2026',
+                badge: <div className="flex items-center gap-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-2.5 py-1 rounded-full"><span className="text-xs font-semibold">~Est.</span></div>,
+                sub: (
+                  <>
+                    <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1 transition-colors duration-300">~{fmtShort(currentPending?.total ?? 0)} estimated</p>
+                    <p className="text-[10px] text-teal-600 dark:text-teal-400 mt-1.5 flex items-center gap-1">
+                      <RefreshCw className="w-3 h-3" /> QPON refresh: Jun 1, 2026 · 488 allocations remaining
+                    </p>
+                  </>
+                ),
+                span: 'col-span-2 lg:col-span-1',
+              },
+            ].map((card) => (
+              <Card key={card.label} className={`${card.span} border-none shadow-lg hover:shadow-xl dark:shadow-2xl transition-all duration-300 relative group border-l-4 ${card.border} bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C]`}>
+                <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
+                  <div className={`absolute top-0 right-0 w-32 h-32 ${card.bgLight} dark:bg-transparent rounded-full blur-3xl opacity-30 -mr-16 -mt-16 group-hover:opacity-50 transition-opacity`} />
+                </div>
+                <CardContent className="p-5 relative z-10">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-xs font-medium text-gray-500 dark:text-blue-300/70 uppercase tracking-wide transition-colors duration-300">{card.label}</p>
+                      <div className="group/tooltip relative">
+                        <Info className="w-3.5 h-3.5 text-gray-400 dark:text-blue-300/50 cursor-help transition-colors duration-300" />
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tooltip:block w-56 z-50">
+                          <div className="bg-gray-900 dark:bg-[#0A0A0A] text-white text-xs rounded-lg p-3 shadow-xl border border-transparent dark:border-gray-700">
+                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 dark:bg-[#0A0A0A] rotate-45" />
+                            {card.tooltip}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    {card.badge}
+                  </div>
+                  <h3 className="text-2xl font-bold text-[#0E2250] dark:text-white transition-colors duration-300">{card.value}</h3>
+                  {card.sub}
+                </CardContent>
+              </Card>
+            ))}
           </div>
 
           {/* Invoice table */}
@@ -417,6 +479,9 @@ export function HRBilling({ onNavigate: _onNavigate }: HRBillingProps) {
                         )}
                       </div>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">{pm.desc}</p>
+                      {pm.gatewayNote && (
+                        <p className="text-[10px] text-[#E35000]/80 dark:text-[#E35000]/70 mt-0.5 font-medium">{pm.gatewayNote}</p>
+                      )}
                     </div>
                     <div className={cn(
                       'w-5 h-5 rounded-full border-2 flex-shrink-0 mt-0.5 flex items-center justify-center transition-all',
@@ -428,41 +493,6 @@ export function HRBilling({ onNavigate: _onNavigate }: HRBillingProps) {
                 );
               })}
 
-              {/* PO number field — only when Purchase Order selected */}
-              {paymentMethod === 'po' && (
-                <div className="mt-1 p-4 rounded-xl bg-gray-50 dark:bg-white/3 border border-gray-200 dark:border-[#2A2A2A]">
-                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-                    Purchase Order Number <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={poNumber}
-                    onChange={e => setPoNumber(e.target.value)}
-                    placeholder="e.g. PO-2026-0142"
-                    className="w-full px-3 py-2.5 text-sm bg-white dark:bg-[#1C1C1C] border border-gray-300 dark:border-[#2A2A2A] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E35000]/30 focus:border-[#E35000] text-gray-900 dark:text-white placeholder-gray-400 transition-colors"
-                  />
-                  <p className="text-[11px] text-gray-400 mt-1.5">This PO number will appear on all future invoices as a reference</p>
-                </div>
-              )}
-
-              {/* Payroll CSV download — only when Payroll Deduction selected */}
-              {paymentMethod === 'payroll' && (
-                <div className="mt-1 flex items-start gap-3 p-4 rounded-xl bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800/40">
-                  <FileSpreadsheet className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-blue-800 dark:text-blue-300">Payroll Deduction CSV</p>
-                    <p className="text-[11px] text-blue-600 dark:text-blue-400 mt-0.5 leading-relaxed">
-                      Available on the 1st of each month with per-employee deduction amounts for payroll processing.
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => showToast('Payroll deduction CSV downloaded', 'info')}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-colors flex-shrink-0"
-                  >
-                    <Download className="w-3 h-3" />Download
-                  </button>
-                </div>
-              )}
             </CardContent>
           </Card>
 

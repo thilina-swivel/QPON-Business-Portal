@@ -5,6 +5,7 @@ import { EmployeeManagement } from "./components/hr/EmployeeManagement";
 import { HRAnalytics } from "./components/hr/HRAnalytics";
 import { HRBilling } from "./components/hr/HRBilling";
 import { HRSettings } from "./components/hr/HRSettings";
+import { ChangePlan } from "./components/hr/ChangePlan";
 import { SignIn } from "./components/auth/SignIn";
 import { SignUp } from "./components/auth/SignUp";
 import { ForgotPassword } from "./components/auth/ForgotPassword";
@@ -26,6 +27,7 @@ export default function App() {
     "signin" | "signup" | "forgotpassword" | "purchase"
   >("signin");
   const [currentView, setCurrentView] = useState("hr-dashboard");
+  const [showChangePlan, setShowChangePlan] = useState(false);
   const [showWelcomeVideo, setShowWelcomeVideo] =
     useState(false);
   const [showWelcomeModal, setShowWelcomeModal] =
@@ -75,7 +77,7 @@ export default function App() {
       case "hr-billing":
         return <HRBilling onNavigate={setCurrentView} />;
       case "hr-settings":
-        return <HRSettings onNavigate={setCurrentView} />;
+        return <HRSettings onNavigate={setCurrentView} onChangePlan={() => setShowChangePlan(true)} />;
       default:
         return <HRDashboard onNavigate={setCurrentView} />;
     }
@@ -87,6 +89,15 @@ export default function App() {
     setAuthView("signin");
     setCurrentView("hr-dashboard");
   };
+
+  if (showChangePlan) {
+    return (
+      <>
+        <ChangePlan onComplete={() => { setShowChangePlan(false); setCurrentView('hr-settings'); }} onBack={() => setShowChangePlan(false)} />
+        <Toaster position="top-center" />
+      </>
+    );
+  }
 
   return (
     <>

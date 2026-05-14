@@ -1,6 +1,6 @@
 # Story UIUX-259: Analytics – Reports & Savings Analytics Screen Design
 
-Status: review
+Status: done
 
 ## Story
 

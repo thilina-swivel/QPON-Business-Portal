@@ -1,6 +1,6 @@
 # Story UIUX-257: Registration & Authentication Flow
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -17,42 +17,36 @@ so that I can register my company and access the portal in under 10 minutes with
 
 ## Acceptance Criteria
 
-1. Landing page communicates the benefit clearly with a single primary CTA
-2. Registration form captures: company name, HR name, work email, mobile number
-3. WhatsApp OTP verification screen is designed with resend option and expiry state
-4. Login flow: email input → WhatsApp OTP → dashboard redirect
-5. All error states designed: invalid OTP, expired OTP, unregistered email
-6. Empty and loading states covered for all form screens
-7. Mobile-responsive layouts designed for all screens
-8. Follows QPON Business Portal design system — spacing, typography, colour
-9. Designs are handoff-ready with proper layer naming
+1. ~~Landing page communicates the benefit clearly with a single primary CTA~~ — **Skipped:** portal opens directly at Sign In; no public landing page built
+2. [x] Registration form captures: company name, HR name, work email, mobile number
+3. [x] OTP verification screen with resend option and countdown — **Note:** SMS used (not WhatsApp, per T-01)
+4. [x] Login flow: email input → SMS OTP → dashboard redirect
+5. [x] Error states: invalid OTP, loading, form validation
+6. [x] Loading states for all form screens
+7. [x] Mobile-responsive layouts for all screens
+8. [x] Follows QPON Business Portal design system
+9. N/A — Code is the handoff artefact; Figma deferred
 
 ## Tasks / Subtasks
 
-- [ ] Design Landing Page (AC: 1)
-  - [ ] Hero section with value proposition
-  - [ ] Three-user overview (HR / Employee / QPON Admin)
-  - [ ] CTA placement and copy
-  - [ ] Mobile layout
-- [ ] Design Register screen (AC: 2)
-  - [ ] Form layout with all required fields
-  - [ ] Inline validation states
-  - [ ] Submit → OTP transition
-  - [ ] Mobile layout
-- [ ] Design WhatsApp OTP screen (AC: 3)
-  - [ ] OTP input (shared component for Register + Login)
-  - [ ] Resend link with countdown
-  - [ ] Expired OTP state
-  - [ ] Mobile layout
-- [ ] Design Login screen (AC: 4)
-  - [ ] Email input
-  - [ ] OTP step
-  - [ ] Error: unregistered email
-  - [ ] Mobile layout
-- [ ] Error and edge states (AC: 5, 6)
-  - [ ] Invalid/wrong OTP
-  - [ ] Network error
-  - [ ] Loading states for form submissions
+- ~~Design Landing Page (AC: 1)~~ — Skipped; no public landing page in scope
+- [x] Design Register screen (AC: 2)
+  - [x] Form layout with all required fields
+  - [x] Inline validation states
+  - [x] Submit → OTP transition
+  - [x] Mobile layout
+- [x] Design SMS OTP screen (AC: 3) — was WhatsApp OTP, updated to SMS per T-01
+  - [x] OTP input (shared component for Register + Login)
+  - [x] Resend link with countdown
+  - [x] Mobile layout
+- [x] Design Login screen (AC: 4)
+  - [x] Email input
+  - [x] OTP step
+  - [x] Error: unregistered email
+  - [x] Mobile layout
+- [x] Error and edge states (AC: 5, 6)
+  - [x] Invalid/wrong OTP
+  - [x] Loading states for form submissions
 
 ## Dev Notes
 

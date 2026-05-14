@@ -58,7 +58,7 @@ export function OnboardingGuide({ isOpen, onClose }: OnboardingGuideProps) {
                 step={2}
                 icon={Users}
                 title="Upload Your Employees"
-                description="Import your employee list to onboard via WhatsApp"
+                description="Import your employee list to onboard via SMS"
                 color="text-blue-500"
                 bgColor="bg-blue-50 dark:bg-blue-500/10"
               />

@@ -3,7 +3,7 @@ import {
   User, Mail, Phone, Building, MapPin, Edit2, Save, XCircle,
   Lock, Upload, Globe, Bell, Shield, Crown, Check, ChevronRight,
   Eye, EyeOff, CheckCircle2, AlertCircle, Info, Loader2, Calendar,
-  ShieldCheck,
+  ShieldCheck, AlertTriangle,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
@@ -26,7 +26,7 @@ import { cn } from '../../lib/utils';
 import { useTheme } from 'next-themes@0.4.6';
 import { toast } from 'sonner@2.0.3';
 
-interface HRSettingsProps { onNavigate: (view: string) => void; }
+interface HRSettingsProps { onNavigate: (view: string) => void; onChangePlan?: () => void; }
 
 // ─── InfoItem — mirrors Profile.tsx's pattern ─────────────────────────────────
 
@@ -93,7 +93,7 @@ function InfoItem({ icon: Icon, label, value, field, isEditing, onChange, type =
 
 // ─── HRSettings ───────────────────────────────────────────────────────────────
 
-export function HRSettings({ onNavigate }: HRSettingsProps) {
+export function HRSettings({ onNavigate, onChangePlan }: HRSettingsProps) {
   const { theme, resolvedTheme } = useTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -116,25 +116,18 @@ export function HRSettings({ onNavigate }: HRSettingsProps) {
   const [verifiedEmail, setVerifiedEmail] = useState(true);
   const [verifiedMobile, setVerifiedMobile] = useState(true);
 
-  // Change Plan dialog
-  const [showChangePlan, setShowChangePlan] = useState(false);
-  const [cpPlan, setCpPlan] = useState<'Starter' | 'Growth' | 'Enterprise'>('Growth');
-  const [cpTier, setCpTier] = useState<'Silver' | 'Gold'>('Gold');
-  const [cpSeats, setCpSeats] = useState(500);
-  const [cpAnnual, setCpAnnual] = useState(false);
+  // Cancel subscription dialog
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
 
-  const PLANS = [
-    { name: 'Starter'    as const, range: '50 – 199',   min: 50,   max: 199,  silver: 1500, gold: 2800, annual: false },
-    { name: 'Growth'     as const, range: '200 – 999',  min: 200,  max: 999,  silver: 1200, gold: 2400, annual: true  },
-    { name: 'Enterprise' as const, range: '1,000+',     min: 1000, max: 99999,silver: 1000, gold: 2000, annual: true  },
-  ] as const;
-
-  const activePlan = PLANS.find(p => p.name === cpPlan)!;
-  const pricePerSeat = cpTier === 'Silver' ? activePlan.silver : activePlan.gold;
-  const monthlyTotal = pricePerSeat * cpSeats;
-  const annualTotal  = monthlyTotal * 10;
-  const displayTotal = cpAnnual && activePlan.annual ? annualTotal : monthlyTotal;
-  const fmtLKR = (n: number) => `LKR ${n.toLocaleString('en-LK')}`;
+  const handleCancelSubscription = () => {
+    setIsCancelling(true);
+    setTimeout(() => {
+      setIsCancelling(false);
+      setShowCancelDialog(false);
+      toast.success('Subscription cancelled. Access continues until Jun 1, 2026.');
+    }, 1200);
+  };
 
   // Password dialog
   const [isPasswordOpen, setIsPasswordOpen] = useState(false);
@@ -381,7 +374,7 @@ export function HRSettings({ onNavigate }: HRSettingsProps) {
             />
             <InfoItem
               icon={Phone}
-              label="Mobile (WhatsApp)"
+              label="Mobile"
               field="mobile"
               value={profile.mobile}
               type="tel"
@@ -424,7 +417,7 @@ export function HRSettings({ onNavigate }: HRSettingsProps) {
             </div>
 
             <div className="space-y-2">
-              <Button onClick={() => setShowChangePlan(true)} className="w-full bg-white text-[#0E2250] hover:bg-gray-100 font-bold transition-colors group">
+              <Button onClick={() => onChangePlan?.()} className="w-full bg-white text-[#0E2250] hover:bg-gray-100 font-bold transition-colors group">
                 <Crown size={16} className="mr-2 text-[#E35000]" />
                 Change Plan
               </Button>
@@ -434,6 +427,12 @@ export function HRSettings({ onNavigate }: HRSettingsProps) {
               >
                 <ChevronRight size={16} className="mr-2" />
                 Manage Billing
+              </Button>
+              <Button
+                onClick={() => setShowCancelDialog(true)}
+                className="w-full bg-transparent hover:bg-red-500/10 text-red-300 hover:text-red-200 font-medium border border-red-400/30 hover:border-red-400/50 transition-colors text-sm"
+              >
+                Cancel Subscription
               </Button>
             </div>
           </CardContent>
@@ -490,152 +489,46 @@ export function HRSettings({ onNavigate }: HRSettingsProps) {
 
       </div>
 
-      {/* ── Change Plan Dialog ── */}
-      <Dialog open={showChangePlan} onOpenChange={setShowChangePlan}>
-        <DialogContent className="sm:max-w-2xl bg-white dark:bg-[#141414] border-gray-200 dark:border-[#2A2A2A]">
+      {/* ── Cancel Subscription Dialog ── */}
+      <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+        <DialogContent className="sm:max-w-md bg-white dark:bg-[#141414] border-gray-200 dark:border-[#2A2A2A]">
           <DialogHeader>
-            <DialogTitle className="text-[#0E2250] dark:text-white text-lg">Change Plan</DialogTitle>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Select a plan and configure your seats</p>
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center flex-shrink-0">
+                <AlertTriangle className="w-5 h-5 text-red-500" />
+              </div>
+              <DialogTitle className="text-[#0E2250] dark:text-white">Cancel Subscription?</DialogTitle>
+            </div>
           </DialogHeader>
-
-          <div className="space-y-5 py-2">
-
-            {/* Plan cards */}
-            <div className="grid grid-cols-3 gap-3">
-              {PLANS.map(plan => {
-                const isActive = cpPlan === plan.name;
-                return (
-                  <button
-                    key={plan.name}
-                    onClick={() => {
-                      setCpPlan(plan.name);
-                      const clamped = Math.min(Math.max(cpSeats, plan.min), plan.max === 99999 ? cpSeats : plan.max);
-                      setCpSeats(clamped);
-                      if (!plan.annual) setCpAnnual(false);
-                    }}
-                    className={cn(
-                      'text-left p-4 rounded-xl border-2 transition-all',
-                      isActive
-                        ? 'border-[#E35000] bg-[#E35000]/5 dark:bg-[#E35000]/10'
-                        : 'border-gray-200 dark:border-[#2A2A2A] hover:border-gray-300 dark:hover:border-gray-500'
-                    )}
-                  >
-                    <div className="flex items-center justify-between mb-1.5">
-                      <p className={cn('text-sm font-bold', isActive ? 'text-[#E35000]' : 'text-gray-900 dark:text-white')}>{plan.name}</p>
-                      {isActive && <span className="text-[10px] font-bold bg-[#E35000]/10 text-[#E35000] border border-[#E35000]/20 px-1.5 py-0.5 rounded-full">Selected</span>}
-                    </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">{plan.range} seats</p>
-                    <div className="space-y-1.5">
-                      <div className="flex justify-between text-xs">
-                        <span className="text-gray-400">Silver/seat</span>
-                        <span className="font-semibold text-gray-700 dark:text-gray-200">LKR {plan.silver.toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between text-xs">
-                        <span className="text-gray-400">Gold/seat</span>
-                        <span className="font-semibold text-amber-600 dark:text-amber-400">LKR {plan.gold.toLocaleString()}</span>
-                      </div>
-                    </div>
-                    {plan.annual
-                      ? <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-2.5 font-medium">✓ Annual: 10 mo + 2 free</p>
-                      : <p className="text-[10px] text-gray-400 mt-2.5">Monthly only</p>
-                    }
-                  </button>
-                );
-              })}
+          <div className="space-y-4 py-1">
+            <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+              Your subscription will be cancelled at the end of the current billing period. You'll retain full access until <strong className="text-[#0E2250] dark:text-white">Jun 1, 2026</strong>.
+            </p>
+            <div className="rounded-xl bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/40 p-4 space-y-2">
+              <p className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wide">What you'll lose</p>
+              <ul className="space-y-1.5">
+                {['SMS coupon delivery for all employees', 'Analytics dashboard & reports', 'Dedicated account manager access'].map(item => (
+                  <li key={item} className="flex items-start gap-2 text-xs text-red-600 dark:text-red-300">
+                    <span className="mt-0.5 flex-shrink-0">×</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
             </div>
-
-            {/* Seat tier + seat count */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-2">Seat Tier</p>
-                <div className="flex gap-2">
-                  {(['Silver', 'Gold'] as const).map(tier => (
-                    <button
-                      key={tier}
-                      onClick={() => setCpTier(tier)}
-                      className={cn(
-                        'flex-1 py-2.5 rounded-xl text-sm font-semibold border-2 transition-all',
-                        cpTier === tier
-                          ? tier === 'Gold'
-                            ? 'border-amber-400 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300'
-                            : 'border-gray-400 bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-200'
-                          : 'border-gray-200 dark:border-[#2A2A2A] text-gray-500 dark:text-gray-400 hover:border-gray-300'
-                      )}
-                    >
-                      {tier === 'Gold' && <Crown size={12} className="inline mr-1 text-amber-500" />}
-                      {tier}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-2">
-                  Seat Count <span className="text-gray-400 font-normal normal-case">({activePlan.range})</span>
-                </p>
-                <input
-                  type="number"
-                  min={activePlan.min}
-                  max={activePlan.name === 'Enterprise' ? undefined : activePlan.max}
-                  value={cpSeats}
-                  onChange={e => {
-                    const v = Math.max(activePlan.min, parseInt(e.target.value) || activePlan.min);
-                    setCpSeats(activePlan.name === 'Enterprise' ? v : Math.min(v, activePlan.max));
-                  }}
-                  className="w-full px-3 py-2.5 text-sm bg-white dark:bg-[#1C1C1C] border border-gray-300 dark:border-[#2A2A2A] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#E35000]/30 focus:border-[#E35000] text-gray-900 dark:text-white transition-colors"
-                />
-              </div>
-            </div>
-
-            {/* Annual billing toggle */}
-            {activePlan.annual && (
-              <button
-                onClick={() => setCpAnnual(v => !v)}
-                className={cn(
-                  'w-full flex items-center justify-between px-4 py-3 rounded-xl border-2 transition-all',
-                  cpAnnual ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/10' : 'border-gray-200 dark:border-[#2A2A2A] hover:border-gray-300'
-                )}
-              >
-                <div className="text-left">
-                  <p className={cn('text-sm font-semibold', cpAnnual ? 'text-emerald-700 dark:text-emerald-300' : 'text-gray-700 dark:text-gray-300')}>
-                    Annual billing — 10 months + 2 free
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Pay once a year and get 2 months free</p>
-                </div>
-                <div className={cn(
-                  'w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ml-4',
-                  cpAnnual ? 'border-emerald-500 bg-emerald-500' : 'border-gray-300 dark:border-gray-600'
-                )}>
-                  {cpAnnual && <Check size={11} className="text-white" />}
-                </div>
-              </button>
-            )}
-
-            {/* Summary */}
-            <div className="rounded-xl bg-gray-50 dark:bg-[#1C1C1C] border border-gray-200 dark:border-[#2A2A2A] p-4 space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500 dark:text-gray-400">{cpPlan} · {cpTier} · {cpSeats.toLocaleString()} seats</span>
-                <span className="font-medium text-gray-700 dark:text-gray-200">{fmtLKR(pricePerSeat)}/seat</span>
-              </div>
-              <div className="flex justify-between items-baseline">
-                <span className="text-sm text-gray-500 dark:text-gray-400">{cpAnnual && activePlan.annual ? 'Annual total (10 months)' : 'Monthly total'}</span>
-                <span className="font-bold text-[#0E2250] dark:text-white text-xl">{fmtLKR(displayTotal)}</span>
-              </div>
-              {cpAnnual && activePlan.annual && (
-                <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
-                  You save {fmtLKR(monthlyTotal * 2)} compared to monthly billing
-                </p>
-              )}
-            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              All employees will be notified via SMS when their access ends.
+            </p>
           </div>
-
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setShowChangePlan(false)} className="text-sm">Cancel</Button>
+          <DialogFooter className="gap-2 mt-2">
+            <Button variant="outline" onClick={() => setShowCancelDialog(false)} className="text-sm flex-1">
+              Keep Subscription
+            </Button>
             <Button
-              onClick={() => { setShowChangePlan(false); toast.success(`Plan updated to ${cpPlan} · ${cpTier} · ${cpSeats.toLocaleString()} seats`); }}
-              className="bg-[#E35000] hover:bg-[#c44500] text-white text-sm"
+              onClick={handleCancelSubscription}
+              disabled={isCancelling}
+              className="bg-red-500 hover:bg-red-600 text-white text-sm flex-1"
             >
-              Confirm Change
+              {isCancelling ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Yes, Cancel'}
             </Button>
           </DialogFooter>
         </DialogContent>

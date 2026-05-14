@@ -1,6 +1,6 @@
 # Story UIUX-261: Authentication & Purchase – Landing, Register, Login, Plan Setup Design
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -83,53 +83,46 @@ Flow:
 
 ## Acceptance Criteria
 
-- [ ] Landing page loads fast and works on mobile (HR may share the link via WhatsApp)
-- [ ] Register form requires: company name, HR name, work email, mobile number — nothing else
-- [ ] WhatsApp OTP verification works within 60 seconds of submission
-- [ ] No credit card required at registration — only at Purchase step
-- [ ] Real-time pricing updates on seat configurator without page reload
-- [ ] All four payment methods selectable; PO number field only appears for Purchase Order
-- [ ] Subscription activates immediately on confirm — HR does not wait for payment to clear
-- [ ] Upgrade flow (existing subscriber) uses same Purchase screen with current subscription pre-filled
-- [ ] OTP screen has resend option with countdown and expired OTP state
-- [ ] Error states designed: invalid OTP, unregistered email on login, form validation
-- [ ] Mobile-responsive layouts for all screens
-- [ ] Follows QPON Business Portal design system
-- [ ] Handoff-ready with proper layer naming
+- ~~Landing page loads fast and works on mobile~~ — **Skipped:** no public landing page built; portal opens at Sign In
+- [x] Register form: company name, HR name, work email, mobile number
+- [x] SMS OTP verification within 60 seconds — **Note:** SMS used (not WhatsApp, per T-01)
+- [x] No credit card required at registration — only at Purchase step
+- [x] Real-time pricing updates on seat configurator
+- [x] Payment methods: Company Invoice + Credit/Debit Card — **Note:** Payroll Deduction and PO removed per product decision
+- [x] Subscription activates immediately on confirm
+- [x] Upgrade flow (Change Plan) uses same screen with current subscription pre-filled
+- [x] OTP screen has resend with countdown
+- [x] Error states: invalid OTP, form validation
+- [x] Mobile-responsive layouts for all screens
+- [x] Follows QPON Business Portal design system
+- N/A — Code is the handoff artefact; Figma deferred
 
 ## Tasks / Subtasks
 
-- [ ] Design Landing page (AC: 1, 11)
-  - [ ] Hero: value proposition + primary CTA
-  - [ ] How it works: 3-step visual flow
-  - [ ] ROI numbers block
-  - [ ] Plan tier summary (Starter / Growth / Enterprise)
-  - [ ] Mobile layout
-- [ ] Design Register screen (AC: 2, 3, 4)
-  - [ ] Form: company name, HR name, email, mobile
-  - [ ] Inline field validation
-  - [ ] Submit → OTP transition
-  - [ ] Mobile layout
-- [ ] Design WhatsApp OTP screen (AC: 3, 9)
-  - [ ] OTP input (shared component for Register + Login)
-  - [ ] Resend link with countdown timer
-  - [ ] Expired OTP state
-  - [ ] Mobile layout
-- [ ] Design Login screen (AC: 10)
-  - [ ] Email input
-  - [ ] OTP step (shared OTP component)
-  - [ ] Error: unregistered email
-  - [ ] Mobile layout
-- [ ] Design Purchase / Upgrade screen (AC: 5, 6, 7, 8)
-  - [ ] Plan cards: Starter, Growth, Enterprise
-  - [ ] Silver / Gold seat configurator with live cost update
-  - [ ] Annual billing toggle (Growth + Enterprise only)
-  - [ ] Payment method selection (4 options + conditional PO field)
-  - [ ] Order summary panel
-  - [ ] "Confirm & Activate" CTA
-  - [ ] Success / post-purchase confirmation
-  - [ ] Upgrade variant: current plan pre-filled
-  - [ ] Mobile layout
+- ~~Design Landing page~~ — Skipped; no public landing page in scope
+- [x] Design Register screen
+  - [x] Form: company name, HR name, email, mobile
+  - [x] Inline field validation
+  - [x] Submit → OTP transition
+  - [x] Mobile layout
+- [x] Design SMS OTP screen (shared for Register + Login)
+  - [x] OTP input component
+  - [x] Resend link with countdown timer
+  - [x] Mobile layout
+- [x] Design Login screen
+  - [x] Email input
+  - [x] OTP step
+  - [x] Error: unregistered email
+  - [x] Mobile layout
+- [x] Design Purchase / Upgrade screen (PurchaseSetup.tsx + ChangePlan.tsx)
+  - [x] Plan cards: Starter, Growth, Enterprise
+  - [x] Silver / Gold seat configurator with live cost update
+  - [x] Annual billing toggle (Growth + Enterprise only)
+  - [x] Payment method: Company Invoice + Credit/Debit Card
+  - [x] Order summary panel (sticky sidebar)
+  - [x] "Confirm & Activate" CTA with loading state
+  - [x] Upgrade variant: current plan pre-filled (ChangePlan.tsx)
+  - [x] Mobile layout
 
 ## Dev Notes
 

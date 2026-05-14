@@ -5,7 +5,7 @@ import {
 } from 'recharts';
 import {
   TrendingUp, Download, FileText, Users,
-  ChevronDown, ChevronUp, Medal,
+  ChevronDown, ChevronUp, Medal, Search,
   CheckCircle2, Utensils, Fuel, ShoppingCart, Pill, ShoppingBag,
   Wallet, BarChart3, Info,
   CalendarDays, ChevronLeft, ChevronRight, FileSpreadsheet,
@@ -26,6 +26,7 @@ interface TrendMonth { label: string; savings: number; cost: number; date: Date;
 interface CategoryItem { label: string; amount: number; color: string; icon: React.ElementType; }
 interface Department { name: string; employees: number; totalSavings: number; avgPerEmployee: number; redemptionRate: number; }
 interface TopEmployee { rank: number; name: string; department: string; tier: 'Silver' | 'Gold'; savings: number; }
+interface EmpBreakdownRow { name: string; department: string; tier: 'Bronze' | 'Silver' | 'Gold'; qponsUsed: number; lastRedemption: string; }
 interface RatePoint { label: string; rate: number; date: Date; }
 
 // ─── Demo Data ────────────────────────────────────────────────────────────────
@@ -107,6 +108,21 @@ const TOP10: TopEmployee[] = [
   { rank: 10, name: 'Harini Jayasuriya',      department: 'Finance',     tier: 'Gold', savings: 6800 },
 ];
 
+const EMP_BREAKDOWN: EmpBreakdownRow[] = [
+  { name: 'Bimal Seneviratne',      department: 'Engineering', tier: 'Gold',   qponsUsed: 28, lastRedemption: '2026-05-13' },
+  { name: 'Chamara Wickramasinghe', department: 'Operations',  tier: 'Gold',   qponsUsed: 27, lastRedemption: '2026-05-12' },
+  { name: 'Priya Maheswaran',       department: 'HR',          tier: 'Gold',   qponsUsed: 25, lastRedemption: '2026-05-11' },
+  { name: 'Nimal Perera',           department: 'Engineering', tier: 'Silver', qponsUsed: 19, lastRedemption: '2026-05-10' },
+  { name: 'Nuwan Jayasinghe',       department: 'IT',          tier: 'Silver', qponsUsed: 18, lastRedemption: '2026-05-09' },
+  { name: 'Vindya Ranasinghe',      department: 'HR',          tier: 'Silver', qponsUsed: 17, lastRedemption: '2026-05-08' },
+  { name: 'Sandun Rathnayake',      department: 'IT',          tier: 'Bronze', qponsUsed: 9,  lastRedemption: '2026-05-07' },
+  { name: 'Sachini Bandara',        department: 'Marketing',   tier: 'Bronze', qponsUsed: 8,  lastRedemption: '2026-05-06' },
+  { name: 'Kavindi Silva',          department: 'HR',          tier: 'Gold',   qponsUsed: 26, lastRedemption: '2026-05-05' },
+  { name: 'Harini Jayasuriya',      department: 'Finance',     tier: 'Silver', qponsUsed: 16, lastRedemption: '2026-05-04' },
+  { name: 'Dilshan Wickramasinghe', department: 'Engineering', tier: 'Gold',   qponsUsed: 24, lastRedemption: '2026-05-03' },
+  { name: 'Amaya Fernando',         department: 'Marketing',   tier: 'Bronze', qponsUsed: 7,  lastRedemption: '2026-05-02' },
+];
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const fmtShort = (n: number) => {
@@ -145,6 +161,29 @@ function HRAnalyticsSkeleton() {
 // ─── HRAnalytics ─────────────────────────────────────────────────────────────
 
 interface HRAnalyticsProps { onNavigate: (view: string) => void; }
+
+function ExportBtn() {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="sm" className="h-8 px-2 sm:px-3 flex-shrink-0">
+          <Download className="w-3.5 h-3.5 sm:mr-1.5" />
+          <span className="hidden sm:inline text-sm">Export</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem>
+          <FileText className="w-4 h-4 mr-2" />
+          Export as PDF
+        </DropdownMenuItem>
+        <DropdownMenuItem>
+          <FileSpreadsheet className="w-4 h-4 mr-2" />
+          Export as CSV
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 export function HRAnalytics({ onNavigate: _onNavigate }: HRAnalyticsProps) {
   const { theme, resolvedTheme } = useTheme();
@@ -330,26 +369,6 @@ export function HRAnalytics({ onNavigate: _onNavigate }: HRAnalyticsProps) {
   );
 
   // ── Export dropdown — matches Analytics.tsx pattern ──
-  const ExportBtn = () => (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="h-8 px-2 sm:px-3 flex-shrink-0">
-          <Download className="w-3.5 h-3.5 sm:mr-1.5" />
-          <span className="hidden sm:inline text-sm">Export</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem>
-          <FileText className="w-4 h-4 mr-2" />
-          Export as PDF
-        </DropdownMenuItem>
-        <DropdownMenuItem>
-          <FileSpreadsheet className="w-4 h-4 mr-2" />
-          Export as CSV
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
 
   return (
     <div className="space-y-6 pb-20 lg:pb-0">
@@ -447,8 +466,10 @@ export function HRAnalytics({ onNavigate: _onNavigate }: HRAnalyticsProps) {
             sub: <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1 transition-colors duration-300">used QPON ≥ once</p>,
           },
         ].map((card) => (
-          <Card key={card.label} className={`border-none shadow-lg hover:shadow-xl dark:shadow-2xl transition-all duration-300 overflow-hidden relative group border-l-4 ${card.border} bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C]`}>
-            <div className={`absolute top-0 right-0 w-32 h-32 ${card.bgLight} dark:bg-transparent rounded-full blur-3xl opacity-30 -mr-16 -mt-16 group-hover:opacity-50 transition-opacity`} />
+          <Card key={card.label} className={`border-none shadow-lg hover:shadow-xl dark:shadow-2xl transition-all duration-300 relative group border-l-4 ${card.border} bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C]`}>
+            <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
+              <div className={`absolute top-0 right-0 w-32 h-32 ${card.bgLight} dark:bg-transparent rounded-full blur-3xl opacity-30 -mr-16 -mt-16 group-hover:opacity-50 transition-opacity`} />
+            </div>
             <CardContent className="p-5 relative z-10">
               <div className="flex items-start justify-between mb-4">
                 <div className={`p-3 rounded-xl ${card.bg} shadow-lg`}>
@@ -805,6 +826,126 @@ export function HRAnalytics({ onNavigate: _onNavigate }: HRAnalyticsProps) {
           </CardContent>
         </Card>
       </div>
+
+      {/* ── Employee Breakdown ── */}
+      <EmployeeBreakdown />
     </div>
+  );
+}
+
+function EmployeeBreakdown() {
+  const [deptFilter, setDeptFilter] = useState('All');
+  const [tierFilter, setTierFilter] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const departments = ['All', ...Array.from(new Set(EMP_BREAKDOWN.map(r => r.department))).sort()];
+  const tiers = ['All', 'Bronze', 'Silver', 'Gold'];
+
+  const filtered = useMemo(() => EMP_BREAKDOWN.filter(r =>
+    (deptFilter === 'All' || r.department === deptFilter) &&
+    (tierFilter === 'All' || r.tier === tierFilter) &&
+    (searchQuery === '' || r.name.toLowerCase().includes(searchQuery.toLowerCase()))
+  ), [deptFilter, tierFilter, searchQuery]);
+
+  const tierColor = (t: string) =>
+    t === 'Gold' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300'
+    : t === 'Bronze' ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300'
+    : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300';
+
+  const cardHead = 'border-b border-gray-100 dark:border-[#2A2A2A] bg-gradient-to-r from-gray-50 to-white dark:from-[#0A0A0A] dark:to-[#141414] transition-colors duration-300 pt-4 pb-3 px-5';
+
+  return (
+    <Card className="border-none shadow-md bg-white dark:bg-gradient-to-br dark:from-[#141414] dark:to-[#1C1C1C]">
+      <CardHeader className={cardHead}>
+        <div className="flex items-center justify-between gap-2 mb-3">
+          <div className="flex items-center gap-1.5">
+            <CardTitle className="text-[#0E2250] dark:text-white text-base sm:text-[18px] transition-colors duration-300">Employee Breakdown</CardTitle>
+            <div className="group/tooltip relative">
+              <Info className="w-4 h-4 text-gray-400 cursor-help flex-shrink-0" />
+              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover/tooltip:block w-64 z-50 pointer-events-none">
+                <div className="bg-gray-900 dark:bg-[#0A0A0A] text-white text-xs rounded-lg p-3 shadow-xl border border-transparent dark:border-[#2A2A2A]">
+                  <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 dark:bg-[#0A0A0A] rotate-45" />
+                  Per-employee QPONs usage and last redemption date for the selected period.
+                </div>
+              </div>
+            </div>
+          </div>
+          <ExportBtn />
+        </div>
+        <div className="flex items-center gap-2">
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search by name…"
+              className="text-xs pl-8 pr-3 py-1.5 w-44 rounded-lg border border-gray-200 dark:border-[#2A2A2A] bg-white dark:bg-[#1C1C1C] text-gray-700 dark:text-gray-300 placeholder-gray-400 focus:outline-none focus:border-[#E35000] transition-colors"
+            />
+          </div>
+          {/* Department filter */}
+          <div className="relative flex-shrink-0">
+            <select
+              value={deptFilter}
+              onChange={e => setDeptFilter(e.target.value)}
+              className="appearance-none text-xs pl-3 pr-8 py-1.5 rounded-lg border border-gray-200 dark:border-[#2A2A2A] bg-white dark:bg-[#1C1C1C] text-gray-700 dark:text-gray-300 focus:outline-none focus:border-[#E35000] cursor-pointer transition-colors"
+            >
+              {departments.map(d => <option key={d} value={d}>{d === 'All' ? 'All Departments' : d}</option>)}
+            </select>
+            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+          </div>
+          {/* Tier filter */}
+          <div className="relative flex-shrink-0">
+            <select
+              value={tierFilter}
+              onChange={e => setTierFilter(e.target.value)}
+              className="appearance-none text-xs pl-3 pr-8 py-1.5 rounded-lg border border-gray-200 dark:border-[#2A2A2A] bg-white dark:bg-[#1C1C1C] text-gray-700 dark:text-gray-300 focus:outline-none focus:border-[#E35000] cursor-pointer transition-colors"
+            >
+              {tiers.map(t => <option key={t} value={t}>{t === 'All' ? 'All Tiers' : t}</option>)}
+            </select>
+            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="p-0 overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-gray-100 dark:border-[#2A2A2A] bg-gray-50/50 dark:bg-white/2">
+              {['Name', 'Department', 'Tier', 'QPONs Used', 'Last Redemption'].map(h => (
+                <th key={h} className="px-5 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-gray-400">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-50 dark:divide-[#2A2A2A]">
+            {filtered.length === 0 ? (
+              <tr><td colSpan={5} className="px-5 py-10 text-center text-sm text-gray-400">No employees match the selected filters.</td></tr>
+            ) : filtered.map(row => (
+              <tr key={row.name} className="hover:bg-gray-50 dark:hover:bg-white/2 transition-colors">
+                <td className="px-5 py-3.5 font-medium text-gray-900 dark:text-white">{row.name}</td>
+                <td className="px-5 py-3.5 text-gray-600 dark:text-gray-400 text-xs">{row.department}</td>
+                <td className="px-5 py-3.5">
+                  <span className={cn('inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider', tierColor(row.tier))}>
+                    {row.tier}
+                  </span>
+                </td>
+                <td className="px-5 py-3.5">
+                  <div className="flex items-center gap-2">
+                    <div className="w-16 h-1.5 rounded-full bg-gray-100 dark:bg-[#2A2A2A] overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-[#E35000]"
+                        style={{ width: `${(row.qponsUsed / 30) * 100}%` }}
+                      />
+                    </div>
+                    <span className="text-xs font-semibold text-gray-900 dark:text-white tabular-nums">{row.qponsUsed}</span>
+                  </div>
+                </td>
+                <td className="px-5 py-3.5 text-gray-600 dark:text-gray-400 text-xs tabular-nums">{row.lastRedemption}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </CardContent>
+    </Card>
   );
 }

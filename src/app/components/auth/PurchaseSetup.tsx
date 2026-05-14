@@ -13,26 +13,29 @@ const PLANS = [
   {
     id: 'starter',
     name: 'Starter',
-    range: '50 – 199',
+    range: '20 – 200',
+    bronzePerSeat: 750,
     silverPerSeat: 1500,
     goldPerSeat: 2800,
     annualAvailable: false,
-    features: ['Up to 199 employees', 'WhatsApp coupon delivery', 'Basic analytics', 'Email support'],
+    features: ['20–200 employees', 'SMS coupon delivery', 'Basic analytics', 'Email support'],
   },
   {
     id: 'growth',
     name: 'Growth',
-    range: '200 – 999',
+    range: '200 – 1,000',
+    bronzePerSeat: 600,
     silverPerSeat: 1200,
     goldPerSeat: 2400,
     annualAvailable: true,
     popular: true,
-    features: ['200–999 employees', 'Priority WhatsApp delivery', 'Full analytics dashboard', 'Dedicated account manager', '2 free months on annual billing'],
+    features: ['200–1,000 employees', 'Priority SMS delivery', 'Full analytics dashboard', 'Dedicated account manager', '2 free months on annual billing'],
   },
   {
     id: 'enterprise',
     name: 'Enterprise',
     range: '1,000+',
+    bronzePerSeat: 500,
     silverPerSeat: 1000,
     goldPerSeat: 2000,
     annualAvailable: true,
@@ -49,12 +52,13 @@ const PLAN_ICONS = {
 };
 
 const PAYMENT_METHODS = [
-  { id: 'invoice', label: 'Company Invoice', description: '30-day payment terms', Icon: Building2 },
-  { id: 'card', label: 'Credit / Debit Card', description: 'Pay online instantly', Icon: CreditCard },
+  { id: 'invoice', label: 'Company Invoice', description: '30-day payment terms', gatewayNote: '', Icon: Building2 },
+  { id: 'card', label: 'Credit / Debit Card', description: 'Pay online instantly', gatewayNote: 'Processed via Gene Payment Gateway', Icon: CreditCard },
 ];
 
 export function PurchaseSetup({ onComplete, onBack }: PurchaseSetupProps) {
   const [selectedPlanId, setSelectedPlanId] = useState<PlanId>('growth');
+  const [bronzeSeats, setBronzeSeats] = useState(0);
   const [silverSeats, setSilverSeats] = useState(100);
   const [goldSeats, setGoldSeats] = useState(50);
   const [isAnnual, setIsAnnual] = useState(false);
@@ -63,9 +67,10 @@ export function PurchaseSetup({ onComplete, onBack }: PurchaseSetupProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const plan = PLANS.find(p => p.id === selectedPlanId)!;
+  const bronzeTotal = bronzeSeats * plan.bronzePerSeat;
   const silverTotal = silverSeats * plan.silverPerSeat;
   const goldTotal = goldSeats * plan.goldPerSeat;
-  const monthlyTotal = silverTotal + goldTotal;
+  const monthlyTotal = bronzeTotal + silverTotal + goldTotal;
   const billedTotal = isAnnual && plan.annualAvailable ? monthlyTotal * 10 : monthlyTotal * 12;
 
   const handleSelectPlan = (id: PlanId) => {
@@ -75,7 +80,7 @@ export function PurchaseSetup({ onComplete, onBack }: PurchaseSetupProps) {
   };
 
   const handleConfirm = () => {
-    if (silverSeats + goldSeats === 0) {
+    if (bronzeSeats + silverSeats + goldSeats === 0) {
       toast.error('Please configure at least one seat');
       return;
     }
@@ -92,7 +97,16 @@ export function PurchaseSetup({ onComplete, onBack }: PurchaseSetupProps) {
       {/* Top bar */}
       <div className="bg-white dark:bg-[#0A0A0A] border-b border-gray-200 dark:border-[#2A2A2A] px-6 py-4 sticky top-0 z-10 transition-colors duration-300">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <img src={logoImage} alt="QPON" className="h-8 w-auto dark:brightness-0 dark:invert transition-all duration-300" />
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onBack}
+              className="flex items-center justify-center w-8 h-8 rounded-lg text-gray-500 dark:text-gray-400 hover:text-[#0E2250] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#2A2A2A] transition-colors duration-200"
+              aria-label="Go back"
+            >
+              <ArrowLeft size={18} />
+            </button>
+            <img src={logoImage} alt="QPON" className="h-8 w-auto dark:brightness-0 dark:invert transition-all duration-300" />
+          </div>
 
           {/* Step indicator */}
           <div className="flex items-center gap-2 text-sm">
@@ -133,7 +147,14 @@ export function PurchaseSetup({ onComplete, onBack }: PurchaseSetupProps) {
 
             {/* Plan Cards */}
             <div className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#2A2A2A] p-6 transition-colors duration-300">
-              <h2 className="text-base font-semibold text-[#0E2250] dark:text-white mb-4 transition-colors duration-300">Select Plan</h2>
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                <h2 className="text-base font-semibold text-[#0E2250] dark:text-white transition-colors duration-300">Select Plan</h2>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-semibold px-2 py-1 rounded-full bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400">Bronze · 10 QPONs / mo</span>
+                  <span className="text-[10px] font-semibold px-2 py-1 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300">Silver · 20 QPONs / mo</span>
+                  <span className="text-[10px] font-semibold px-2 py-1 rounded-full bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400">Gold · 30 QPONs / mo</span>
+                </div>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {PLANS.map(p => (
                   <button
@@ -145,7 +166,7 @@ export function PurchaseSetup({ onComplete, onBack }: PurchaseSetupProps) {
                         : 'border-gray-200 dark:border-[#2A2A2A] hover:border-gray-300 dark:hover:border-[#3A3A3A]'
                     }`}
                   >
-                    {p.popular && (
+                    {'popular' in p && p.popular && (
                       <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-[#E35000] text-white text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
                         POPULAR
                       </span>
@@ -211,11 +232,44 @@ export function PurchaseSetup({ onComplete, onBack }: PurchaseSetupProps) {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {/* Bronze */}
+                <div>
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-300">
+                    Bronze Seats
+                    <span className="text-xs font-normal text-amber-500 ml-1">· 10 QPONs / 30 days</span>
+                    <span className="text-xs font-normal text-gray-400 ml-1">— LKR {plan.bronzePerSeat.toLocaleString()}/seat</span>
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setBronzeSeats(Math.max(0, bronzeSeats - 10))}
+                      className="w-9 h-9 rounded-lg border border-gray-200 dark:border-[#2A2A2A] flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#2A2A2A] text-lg font-bold transition-colors duration-200"
+                    >
+                      −
+                    </button>
+                    <input
+                      type="number"
+                      min={0}
+                      value={bronzeSeats}
+                      onChange={e => setBronzeSeats(Math.max(0, parseInt(e.target.value) || 0))}
+                      className="flex-1 h-9 text-center rounded-lg border border-gray-200 dark:border-[#2A2A2A] bg-gray-50 dark:bg-[#1C1C1C] text-[#0E2250] dark:text-white text-sm font-semibold focus:outline-none focus:border-[#E35000] transition-colors duration-200"
+                    />
+                    <button
+                      onClick={() => setBronzeSeats(bronzeSeats + 10)}
+                      className="w-9 h-9 rounded-lg border border-gray-200 dark:border-[#2A2A2A] flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#2A2A2A] text-lg font-bold transition-colors duration-200"
+                    >
+                      +
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5 transition-colors duration-300">
+                    Subtotal: LKR {bronzeTotal.toLocaleString()}/mo
+                  </p>
+                </div>
+
                 {/* Silver */}
                 <div>
                   <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-300">
                     Silver Seats
-                    <span className="text-xs font-normal text-gray-400 ml-1">— LKR {plan.silverPerSeat.toLocaleString()}/seat</span>
+                    <span className="text-xs font-normal text-gray-400 ml-1">· 20 QPONs / 30 days — LKR {plan.silverPerSeat.toLocaleString()}/seat</span>
                   </p>
                   <div className="flex items-center gap-2">
                     <button
@@ -247,7 +301,7 @@ export function PurchaseSetup({ onComplete, onBack }: PurchaseSetupProps) {
                 <div>
                   <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-300">
                     Gold Seats
-                    <span className="text-xs font-normal text-gray-400 ml-1">— LKR {plan.goldPerSeat.toLocaleString()}/seat</span>
+                    <span className="text-xs font-normal text-gray-400 ml-1">· 30 QPONs / 30 days — LKR {plan.goldPerSeat.toLocaleString()}/seat</span>
                   </p>
                   <div className="flex items-center gap-2">
                     <button
@@ -299,6 +353,9 @@ export function PurchaseSetup({ onComplete, onBack }: PurchaseSetupProps) {
                     <div>
                       <p className="font-semibold text-sm text-[#0E2250] dark:text-white transition-colors duration-300">{pm.label}</p>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 transition-colors duration-300">{pm.description}</p>
+                      {pm.gatewayNote && (
+                        <p className="text-[10px] text-[#E35000]/80 mt-0.5 font-medium">{pm.gatewayNote}</p>
+                      )}
                     </div>
                   </button>
                 ))}
@@ -319,6 +376,12 @@ export function PurchaseSetup({ onComplete, onBack }: PurchaseSetupProps) {
               </p>
 
               <div className="space-y-3 text-sm relative z-10">
+                {bronzeSeats > 0 && (
+                  <div className="flex justify-between text-blue-200 border-b border-white/10 pb-3">
+                    <span>Bronze × {bronzeSeats} seats</span>
+                    <span className="font-medium text-white">LKR {bronzeTotal.toLocaleString()}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-blue-200 border-b border-white/10 pb-3">
                   <span>Silver × {silverSeats} seats</span>
                   <span className="font-medium text-white">LKR {silverTotal.toLocaleString()}</span>
@@ -354,7 +417,7 @@ export function PurchaseSetup({ onComplete, onBack }: PurchaseSetupProps) {
 
               <Button
                 onClick={handleConfirm}
-                disabled={isLoading || (silverSeats + goldSeats) === 0}
+                disabled={isLoading || (bronzeSeats + silverSeats + goldSeats) === 0}
                 className="w-full mt-6 h-12 bg-[#E35000] hover:bg-[#c44500] text-white font-bold text-base relative z-10 transition-colors duration-200"
               >
                 {isLoading ? (
@@ -367,15 +430,6 @@ export function PurchaseSetup({ onComplete, onBack }: PurchaseSetupProps) {
           </div>
         </div>
 
-        {/* Back to account creation */}
-        <div className="mt-6">
-          <button
-            onClick={onBack}
-            className="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-[#0E2250] dark:hover:text-white transition-colors duration-200"
-          >
-            <ArrowLeft size={15} /> Back to account creation
-          </button>
-        </div>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 # Story UIUX-258: Employees – Employee Management Screens Design
 
-Status: review
+Status: done
 
 ## Story
 

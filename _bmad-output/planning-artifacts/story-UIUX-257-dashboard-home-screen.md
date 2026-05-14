@@ -1,6 +1,6 @@
 # Story UIUX-257: Dashboard – HR Portal Home Screen Design
 
-Status: review
+Status: done
 
 ## Story
 

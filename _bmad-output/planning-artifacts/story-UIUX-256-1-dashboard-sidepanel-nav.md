@@ -1,6 +1,6 @@
 # Story UIUX-256.1: Dashboard & Side Panel Navigation
 
-Status: review
+Status: done
 
 ## Story
 

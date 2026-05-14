@@ -131,7 +131,7 @@ function HRDashboardEmpty({ onNavigate }: { onNavigate?: (v: string) => void }) 
   const steps = [
     { n: 1, label: 'Upload your employee roster', desc: 'Import names, emails, and seat tiers via CSV or add manually.', done: false },
     { n: 2, label: 'Assign Silver & Gold seats',   desc: 'Allocate seat types to match your benefit tiers.',              done: false },
-    { n: 3, label: 'Send activation links',        desc: 'One click sends personalised WhatsApp links to all employees.',  done: false },
+    { n: 3, label: 'Send activation links',        desc: 'One click sends personalised SMS links to all employees.',  done: false },
   ];
 
   return (
@@ -266,14 +266,19 @@ export function HRDashboard({ onNavigate }: HRDashboardProps) {
             value: kpiData.totalSeats.total.toLocaleString(),
             badge: <div className="flex items-center gap-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-2.5 py-1 rounded-full"><TrendingUp className="w-3 h-3" /><span className="text-xs font-semibold">{activationPct}%</span></div>,
             sub: (
-              <div className="flex items-center gap-2 mt-3">
-                <span className="flex items-center gap-1 text-[10px] px-2 py-1 rounded-full bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 font-medium">
-                  <UserCheck className="w-3 h-3" />{kpiData.activated} Activated
-                </span>
-                <span className="flex items-center gap-1 text-[10px] px-2 py-1 rounded-full bg-orange-100 dark:bg-[#E35000]/20 text-[#E35000] font-semibold ring-1 ring-[#E35000]/30">
-                  <UserX className="w-3 h-3" />{kpiData.pending} Pending
-                </span>
-              </div>
+              <>
+                <div className="flex items-center gap-2 mt-3">
+                  <span className="flex items-center gap-1 text-[10px] px-2 py-1 rounded-full bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 font-medium">
+                    <UserCheck className="w-3 h-3" />{kpiData.activated} Activated
+                  </span>
+                  <span className="flex items-center gap-1 text-[10px] px-2 py-1 rounded-full bg-orange-100 dark:bg-[#E35000]/20 text-[#E35000] font-semibold ring-1 ring-[#E35000]/30">
+                    <UserX className="w-3 h-3" />{kpiData.pending} Pending
+                  </span>
+                </div>
+                <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-2 flex items-center gap-1">
+                  <RefreshCw className="w-3 h-3" /> Next QPON refresh: Jun 1, 2026
+                </p>
+              </>
             ),
           },
           {

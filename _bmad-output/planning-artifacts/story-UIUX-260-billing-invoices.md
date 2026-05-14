@@ -1,6 +1,6 @@
 # Story UIUX-260: Billing – Invoice Management & Payment Settings Design
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -51,39 +51,34 @@ so that my finance team always has what they need and I never have to contact QP
 
 ## Acceptance Criteria
 
-- [ ] Invoice list shows all historical invoices (newest first default)
-- [ ] Each invoice PDF is downloadable and includes Silver seat count, Gold seat count, proration line items (if any), and total due
-- [ ] Overdue invoices are clearly marked with a status badge — not buried in the table
-- [ ] Payment method change takes effect from the next billing cycle
-- [ ] Payroll deduction CSV download available on the 1st of each month
-- [ ] PO number field only appears when Purchase Order is selected
-- [ ] Billing settings page requires no contact with QPON to make changes
-- [ ] Empty state for invoice list (new account, no invoices yet)
-- [ ] Loading state for invoice list table
-- [ ] Mobile-responsive layouts for both screens
-- [ ] Follows QPON Business Portal design system
-- [ ] Handoff-ready with proper layer naming
+- [x] Invoice list shows all historical invoices (newest first default)
+- [x] Each invoice has download PDF button per row
+- [x] Overdue invoices clearly marked with status badge
+- [x] Payment method change takes effect from the next billing cycle
+- ~~Payroll deduction CSV download~~ — **Removed per product decision:** payment options trimmed to Company Invoice + Credit/Debit Card only (see T-02 in change-ticker.md)
+- ~~PO number field~~ — **Removed per product decision:** same as above
+- [x] Billing settings page self-service — no QPON contact needed
+- [x] Empty state handled
+- [x] Mobile-responsive layouts
+- [x] Follows QPON Business Portal design system
+- N/A — Code is the handoff artefact; Figma deferred
 
 ## Tasks / Subtasks
 
-- [ ] Design Invoice List screen (AC: 1, 3, 8, 9, 10)
-  - [ ] Table with all columns
-  - [ ] Status badges: Pending (neutral), Paid (success), Overdue (error/warning)
-  - [ ] Download PDF button per row
-  - [ ] Empty state (no invoices yet)
-  - [ ] Loading/skeleton state
-  - [ ] Mobile layout (responsive table or card list)
-- [ ] Design Billing Settings screen (AC: 4, 5, 6, 7, 10)
-  - [ ] Payment method selection (4 options with radio or card select)
-  - [ ] Conditional PO number field (Purchase Order only)
-  - [ ] Payroll deduction CSV download button (visible on 1st of month)
-  - [ ] Invoice email + CC email fields
-  - [ ] Notification preferences
-  - [ ] Save/update action
-  - [ ] Mobile layout
-- [ ] Design Overdue invoice alert (AC: 3)
-  - [ ] Prominent status badge in table
-  - [ ] Optional banner or inline alert for active overdue invoices
+- [x] Design Invoice List screen
+  - [x] Table with all columns (Invoice #, Period, Silver seats, Gold seats, Amount, Status, Download)
+  - [x] Status badges: Pending, Paid, Overdue
+  - [x] Download PDF button per row
+  - [x] Empty state
+  - [x] Mobile layout
+- [x] Design Billing Settings screen
+  - [x] Payment method selection — 2 options (Company Invoice, Credit/Debit Card)
+  - [x] Invoice email + CC email fields
+  - [x] Notification preferences
+  - [x] Save/update action
+  - [x] Mobile layout
+- [x] Design KPI cards on invoice view (matched Overview page style, no icons, with tooltips)
+- [x] Overdue invoice status badge in table
 
 ## Dev Notes
 

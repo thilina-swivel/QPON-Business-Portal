@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import {
   Users, UserCheck, UserX, Search,
   ChevronDown, ChevronUp, ChevronLeft, ChevronRight,
@@ -15,7 +15,7 @@ import { cn } from '../../lib/utils';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type Tier = 'Silver' | 'Gold';
+type Tier = 'Bronze' | 'Silver' | 'Gold';
 type ActivationStatus = 'Activated' | 'Pending';
 type EmpView = 'list' | 'add' | 'bulk' | 'detail';
 type BulkStep = 'upload' | 'preview' | 'success';
@@ -100,11 +100,17 @@ const formatDate = (s: string | null) => {
 // ─── TierBadge ────────────────────────────────────────────────────────────────
 
 function TierBadge({ tier }: { tier: Tier }) {
-  return tier === 'Gold' ? (
+  if (tier === 'Gold') return (
     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
       <Medal className="w-2.5 h-2.5" /> Gold
     </span>
-  ) : (
+  );
+  if (tier === 'Bronze') return (
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300">
+      Bronze
+    </span>
+  );
+  return (
     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
       Silver
     </span>
@@ -151,6 +157,109 @@ function RemoveDialog({ employee, onConfirm, onCancel }: { employee: Employee | 
           <Button variant="outline" className="flex-1" onClick={onCancel}>Cancel</Button>
           <Button className="flex-1 bg-red-600 hover:bg-red-700 text-white border-0" onClick={onConfirm}>
             Remove Employee
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── TierChangeDialog ─────────────────────────────────────────────────────────
+
+function TierChangeDialog({ employee, onConfirm, onCancel }: {
+  employee: Employee | null;
+  onConfirm: (tier: Tier) => void;
+  onCancel: () => void;
+}) {
+  const [selected, setSelected] = useState<Tier>('Silver');
+
+  useEffect(() => {
+    if (employee) setSelected(employee.tier);
+  }, [employee?.id]);
+
+  if (!employee) return null;
+
+  const tiers: Array<{ tier: Tier; qpons: number }> = [
+    { tier: 'Bronze', qpons: 10 },
+    { tier: 'Silver', qpons: 20 },
+    { tier: 'Gold', qpons: 30 },
+  ];
+
+  const tierRank: Record<Tier, number> = { Bronze: 0, Silver: 1, Gold: 2 };
+  const direction = tierRank[selected] > tierRank[employee.tier] ? 'upgrade'
+    : tierRank[selected] < tierRank[employee.tier] ? 'downgrade'
+    : 'same';
+
+  const selectedBorderClass = (tier: Tier) => {
+    if (tier === 'Gold') return 'border-amber-400 bg-amber-50 dark:bg-amber-900/10';
+    if (tier === 'Bronze') return 'border-orange-400 bg-orange-50 dark:bg-orange-900/10';
+    return 'border-gray-400 bg-gray-50 dark:bg-gray-700/20';
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onCancel} />
+      <div className="relative z-10 w-full max-w-sm bg-white dark:bg-[#1C1C1C] rounded-2xl shadow-2xl p-6">
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white">Change Tier</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{employee.name}</p>
+          </div>
+          <button onClick={onCancel} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 text-gray-400 transition-colors">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="space-y-2 mb-4">
+          {tiers.map(({ tier, qpons }) => {
+            const isCurrent = tier === employee.tier;
+            const isSelected = tier === selected;
+            return (
+              <button
+                key={tier}
+                onClick={() => setSelected(tier)}
+                className={`w-full flex items-center justify-between p-3 rounded-xl border-2 transition-all duration-150 text-left ${
+                  isSelected
+                    ? selectedBorderClass(tier)
+                    : 'border-gray-200 dark:border-[#2A2A2A] hover:border-gray-300 dark:hover:border-[#3A3A3A]'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <TierBadge tier={tier} />
+                  <span className="text-sm text-gray-600 dark:text-gray-300">{qpons} QPONs / 30 days</span>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  {isCurrent && (
+                    <span className="text-[10px] font-semibold text-gray-400 bg-gray-100 dark:bg-white/10 px-2 py-0.5 rounded-full">Current</span>
+                  )}
+                  {isSelected && !isCurrent && <Check className="w-4 h-4 text-[#E35000]" />}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {direction !== 'same' && (
+          <div className={`flex items-center gap-2 px-3 py-2 rounded-lg mb-4 text-xs font-medium ${
+            direction === 'upgrade'
+              ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400'
+              : 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400'
+          }`}>
+            <TrendingUp className={cn('w-3.5 h-3.5 transition-transform', direction === 'downgrade' && 'rotate-180')} />
+            {direction === 'upgrade'
+              ? `Upgrading: ${employee.tier} → ${selected}`
+              : `Downgrading: ${employee.tier} → ${selected}`}
+          </div>
+        )}
+
+        <div className="flex gap-3">
+          <Button variant="outline" className="flex-1" onClick={onCancel}>Cancel</Button>
+          <Button
+            className="flex-1 bg-[#E35000] hover:bg-[#c44500] text-white border-0"
+            onClick={() => onConfirm(selected)}
+            disabled={direction === 'same'}
+          >
+            {direction === 'upgrade' ? 'Upgrade' : direction === 'downgrade' ? 'Downgrade' : 'No Change'}
           </Button>
         </div>
       </div>
@@ -215,16 +324,18 @@ function EmployeeEmptyState({ onAddEmployee, onBulkUpload }: { onAddEmployee: ()
 function AddEmployeeForm({ onBack, onSuccess }: { onBack: () => void; onSuccess: (emp: Employee) => void }) {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [department, setDepartment] = useState('');
   const [tier, setTier] = useState<Tier>('Silver');
-  const [errors, setErrors] = useState<{ name?: string; phone?: string }>({});
+  const [errors, setErrors] = useState<{ name?: string; phone?: string; department?: string }>({});
   const [submitted, setSubmitted] = useState(false);
 
   const validate = () => {
-    const errs: { name?: string; phone?: string } = {};
+    const errs: { name?: string; phone?: string; department?: string } = {};
     if (!name.trim()) errs.name = 'Full name is required';
     if (!phone) errs.phone = 'Mobile number is required';
     else if (!/^\d{9}$/.test(phone)) errs.phone = 'Enter a valid 9-digit number';
+    if (!department.trim()) errs.department = 'Department is required';
     return errs;
   };
 
@@ -235,7 +346,7 @@ function AddEmployeeForm({ onBack, onSuccess }: { onBack: () => void; onSuccess:
     const newEmp: Employee = {
       id: `e-new-${Date.now()}`,
       name: name.trim(),
-      department: department.trim() || '—',
+      department: department.trim(),
       tier,
       status: 'Pending',
       phone: '+94' + phone,
@@ -258,7 +369,7 @@ function AddEmployeeForm({ onBack, onSuccess }: { onBack: () => void; onSuccess:
           <CheckCircle2 className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
         </div>
         <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Employee added</h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400">WhatsApp activation link sent to +94{phone}.</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">SMS activation link sent to +94{phone}.</p>
       </div>
     );
   }
@@ -271,7 +382,7 @@ function AddEmployeeForm({ onBack, onSuccess }: { onBack: () => void; onSuccess:
         </button>
         <div>
           <h2 className="text-xl font-semibold text-[#0E2250] dark:text-white">Add Employee</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400">A WhatsApp activation link is sent immediately on save.</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">An SMS activation link is sent immediately on save.</p>
         </div>
       </div>
       <Card className="border border-gray-200 dark:border-[#2A2A2A] bg-white dark:bg-[#141414]">
@@ -305,20 +416,42 @@ function AddEmployeeForm({ onBack, onSuccess }: { onBack: () => void; onSuccess:
             </div>
             {errors.phone && <p className="mt-1 text-xs text-red-500 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.phone}</p>}
           </div>
+          {/* Email */}
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5">
+              Email <span className="text-gray-400 font-normal normal-case tracking-normal">(optional)</span>
+            </label>
+            <Input
+              type="email"
+              value={email}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+              placeholder="e.g. nimal@company.com"
+            />
+          </div>
           {/* Department */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5">
-              Department <span className="text-gray-400 font-normal normal-case tracking-normal">(optional)</span>
+              Department <span className="text-red-500">*</span>
             </label>
-            <Input value={department} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDepartment(e.target.value)} placeholder="e.g. Engineering" />
+            <Input
+              value={department}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setDepartment(e.target.value); if (errors.department) setErrors(p => ({ ...p, department: undefined })); }}
+              placeholder="e.g. Engineering"
+              className={cn(errors.department && 'border-red-500')}
+            />
+            {errors.department && <p className="mt-1 text-xs text-red-500 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.department}</p>}
           </div>
           {/* Tier toggle */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5">Tier</label>
             <div className="flex rounded-lg border border-gray-200 dark:border-[#2A2A2A] overflow-hidden w-fit">
               <button
+                onClick={() => setTier('Bronze')}
+                className={cn('px-5 py-2 text-sm font-medium transition-colors', tier === 'Bronze' ? 'bg-amber-700 text-white' : 'bg-white dark:bg-[#1C1C1C] text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5')}
+              >Bronze</button>
+              <button
                 onClick={() => setTier('Silver')}
-                className={cn('px-5 py-2 text-sm font-medium transition-colors', tier === 'Silver' ? 'bg-gray-700 text-white' : 'bg-white dark:bg-[#1C1C1C] text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5')}
+                className={cn('px-5 py-2 text-sm font-medium transition-colors border-l border-gray-200 dark:border-[#2A2A2A]', tier === 'Silver' ? 'bg-gray-700 text-white' : 'bg-white dark:bg-[#1C1C1C] text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5')}
               >Silver</button>
               <button
                 onClick={() => setTier('Gold')}
@@ -328,7 +461,7 @@ function AddEmployeeForm({ onBack, onSuccess }: { onBack: () => void; onSuccess:
               </button>
             </div>
             <p className="mt-1.5 text-xs text-gray-400 dark:text-gray-500">
-              {tier === 'Gold' ? 'Gold · LKR 1,200/month — full benefits' : 'Silver · LKR 600/month — standard benefits'}
+              {tier === 'Gold' ? 'Gold · 30 QPONs / 30 days — LKR 1,200/seat' : tier === 'Bronze' ? 'Bronze · 10 QPONs / 30 days — LKR TBC/seat' : 'Silver · 20 QPONs / 30 days — LKR 600/seat'}
             </p>
           </div>
           {/* Actions */}
@@ -371,7 +504,7 @@ function BulkUploadScreen({ onBack, onSuccess }: { onBack: () => void; onSuccess
         </div>
         <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">{validRows.length} activation links sent</h3>
         <p className="text-sm text-gray-500 dark:text-gray-400 max-w-sm">
-          WhatsApp messages will be delivered within 2 minutes. Employees appear as Activated once they tap their link.
+          SMS messages will be delivered within 2 minutes. Employees appear as Activated once they tap their link.
         </p>
       </div>
     );
@@ -414,7 +547,7 @@ function BulkUploadScreen({ onBack, onSuccess }: { onBack: () => void; onSuccess
               <FileText className="w-5 h-5 text-gray-400" />
               <div>
                 <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Download CSV Template</p>
-                <p className="text-xs text-gray-400">name, phone, department, tier</p>
+                <p className="text-xs text-gray-400">Full Name · Mobile Number · Email (optional) · Department</p>
               </div>
             </div>
             <Button variant="outline" size="sm" className="gap-2"><Download className="w-3.5 h-3.5" />Template</Button>
@@ -464,7 +597,7 @@ function BulkUploadScreen({ onBack, onSuccess }: { onBack: () => void; onSuccess
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-100 dark:border-[#2A2A2A] bg-gray-50/50 dark:bg-white/2">
-                    {['#', 'Name', 'Phone', 'Department', 'Tier', 'Status', ''].map((h, i) => (
+                    {['#', 'Full Name', 'Mobile Number', 'Email (optional)', 'Department', 'Status', ''].map((h, i) => (
                       <th key={i} className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-gray-400">{h}</th>
                     ))}
                   </tr>
@@ -669,7 +802,7 @@ function EmployeeDetailView({ employee, onBack, onTierChange, onRemove }: {
 
 // ─── EmployeeList ─────────────────────────────────────────────────────────────
 
-function EmployeeList({ employees, onViewDetail, onRemove, onTierChange, onResend, onAddEmployee, onBulkUpload }: {
+function EmployeeList({ employees, onViewDetail, onRemove, onTierChange, onResend, onAddEmployee, onBulkUpload, onOpenTierDialog }: {
   employees: Employee[];
   onViewDetail: (emp: Employee) => void;
   onRemove: (emp: Employee) => void;
@@ -677,6 +810,7 @@ function EmployeeList({ employees, onViewDetail, onRemove, onTierChange, onResen
   onResend: (emp: Employee) => void;
   onAddEmployee: () => void;
   onBulkUpload: () => void;
+  onOpenTierDialog: (emp: Employee) => void;
 }) {
   const [search, setSearch] = useState('');
   const [tierFilter, setTierFilter] = useState<'All' | Tier>('All');
@@ -776,7 +910,7 @@ function EmployeeList({ employees, onViewDetail, onRemove, onTierChange, onResen
           <Input value={search} onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setSearch(e.target.value); setPage(1); }} placeholder="Search employees..." className="pl-9" />
         </div>
         <div className="flex items-center gap-1 p-1 rounded-lg bg-gray-100 dark:bg-white/5">
-          {(['All', 'Silver', 'Gold'] as const).map(t => (
+          {(['All', 'Bronze', 'Silver', 'Gold'] as const).map(t => (
             <button key={t} onClick={() => { setTierFilter(t); setPage(1); }} className={cn('px-3 py-1 rounded-md text-xs font-semibold transition-colors', tierFilter === t ? 'bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200')}>{t}</button>
           ))}
         </div>
@@ -849,16 +983,12 @@ function EmployeeList({ employees, onViewDetail, onRemove, onTierChange, onResen
                         <button onClick={() => onViewDetail(emp)} title="View Detail" className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">
                           <Eye className="w-3.5 h-3.5" />
                         </button>
-                        {emp.status === 'Pending' && (
-                          <button onClick={() => onResend(emp)} title="Resend Link" className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/10 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                            <Send className="w-3.5 h-3.5" />
-                          </button>
-                        )}
-                        {emp.tier === 'Silver' && (
-                          <button onClick={() => onTierChange(emp.id, 'Gold')} title="Upgrade to Gold" className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/10 text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
-                            <Medal className="w-3.5 h-3.5" />
-                          </button>
-                        )}
+                        <button onClick={() => onResend(emp)} title="Resend SMS" className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/10 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                          <Send className="w-3.5 h-3.5" />
+                        </button>
+                        <button onClick={() => onOpenTierDialog(emp)} title="Change tier" className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/10 text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
+                          <Medal className="w-3.5 h-3.5" />
+                        </button>
                         <button onClick={() => onRemove(emp)} title="Remove" className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-red-50 dark:hover:bg-red-900/10 text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors">
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -900,11 +1030,9 @@ function EmployeeList({ employees, onViewDetail, onRemove, onTierChange, onResen
                 <button onClick={() => onViewDetail(emp)} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
                   <Eye className="w-3.5 h-3.5" />View
                 </button>
-                {emp.status === 'Pending' && (
-                  <button onClick={() => onResend(emp)} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/10 hover:bg-blue-100 dark:hover:bg-blue-900/20 transition-colors">
-                    <Send className="w-3.5 h-3.5" />Resend
-                  </button>
-                )}
+                <button onClick={() => onResend(emp)} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/10 hover:bg-blue-100 dark:hover:bg-blue-900/20 transition-colors">
+                  <Send className="w-3.5 h-3.5" />Resend SMS
+                </button>
                 <button onClick={() => onRemove(emp)} className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-500 bg-red-50 dark:bg-red-900/10 hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors">
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
@@ -946,6 +1074,7 @@ export function EmployeeManagement({ onNavigate }: EmployeeManagementProps) {
   const [employees, setEmployees] = useState<Employee[]>(DEMO_EMPLOYEES);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [removeTarget, setRemoveTarget] = useState<Employee | null>(null);
+  const [tierChangeTarget, setTierChangeTarget] = useState<Employee | null>(null);
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'info' } | null>(null);
 
   const showToast = (msg: string, type: 'success' | 'info' = 'success') => {
@@ -959,7 +1088,7 @@ export function EmployeeManagement({ onNavigate }: EmployeeManagementProps) {
     showToast(`Tier updated to ${newTier}`);
   };
 
-  const handleResend = (emp: Employee) => showToast(`Activation link resent to ${emp.name}`);
+  const handleResend = (emp: Employee) => showToast(`Activation SMS resent to ${emp.name}`);
 
   const handleRemoveConfirm = () => {
     if (!removeTarget) return;
@@ -1006,6 +1135,7 @@ export function EmployeeManagement({ onNavigate }: EmployeeManagementProps) {
             onResend={handleResend}
             onAddEmployee={() => setView('add')}
             onBulkUpload={() => setView('bulk')}
+            onOpenTierDialog={(emp) => setTierChangeTarget(emp)}
           />
         );
     }
@@ -1015,6 +1145,14 @@ export function EmployeeManagement({ onNavigate }: EmployeeManagementProps) {
     <div className="relative">
       {renderContent()}
       <RemoveDialog employee={removeTarget} onConfirm={handleRemoveConfirm} onCancel={() => setRemoveTarget(null)} />
+      <TierChangeDialog
+        employee={tierChangeTarget}
+        onConfirm={(tier) => {
+          if (tierChangeTarget) handleTierChange(tierChangeTarget.id, tier);
+          setTierChangeTarget(null);
+        }}
+        onCancel={() => setTierChangeTarget(null)}
+      />
       {toast && (
         <div className={cn(
           'fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2.5 px-4 py-3 rounded-xl shadow-xl text-sm font-medium',

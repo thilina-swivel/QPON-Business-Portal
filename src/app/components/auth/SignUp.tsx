@@ -42,7 +42,7 @@ export function SignUp({ onSignUp, onNavigateToSignIn }: SignUpProps) {
       setIsLoading(false);
       setStep('otp');
       setResendTimer(60);
-      toast.success('OTP sent to your WhatsApp');
+      toast.success('OTP sent to your mobile via SMS');
     }, 1500);
   };
 
@@ -63,21 +63,21 @@ export function SignUp({ onSignUp, onNavigateToSignIn }: SignUpProps) {
       setIsLoading(false);
       setResendTimer(60);
       setOtpValue('');
-      toast.success('New OTP sent to your WhatsApp');
+      toast.success('New OTP sent to your mobile via SMS');
     }, 1000);
   };
 
   if (step === 'otp') {
     return (
       <AuthLayout
-        title="Verify WhatsApp"
+        title="Verify Mobile Number"
         subtitle={`We sent a 6-digit code to ${formData.mobile}`}
       >
         <div className="space-y-6">
           <div className="flex justify-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700/50 rounded-full transition-colors duration-300">
               <ShieldCheck size={16} className="text-green-600 dark:text-green-400" />
-              <span className="text-xs font-medium text-green-700 dark:text-green-300">Sent via WhatsApp</span>
+              <span className="text-xs font-medium text-green-700 dark:text-green-300">Sent via SMS</span>
             </div>
           </div>
 
@@ -137,7 +137,7 @@ export function SignUp({ onSignUp, onNavigateToSignIn }: SignUpProps) {
 
           <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700/50 rounded-lg p-3 transition-colors duration-300">
             <p className="text-xs text-green-800 dark:text-green-300 text-center transition-colors duration-300">
-              Check WhatsApp for the OTP message from QPON Business.
+              Check your SMS for the OTP message from QPON Business.
             </p>
           </div>
         </div>
@@ -153,7 +153,7 @@ export function SignUp({ onSignUp, onNavigateToSignIn }: SignUpProps) {
       <div className="space-y-6">
         <form onSubmit={handleDetailsSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="companyName" className="dark:text-gray-200 transition-colors duration-300">Company Name</Label>
+            <Label htmlFor="companyName" className="dark:text-gray-200 transition-colors duration-300">Company Name <span className="text-red-500">*</span></Label>
             <div className="relative">
               <div className="absolute left-3 top-2.5 text-gray-400 dark:text-gray-500 transition-colors duration-300">
                 <Building2 size={18} />
@@ -171,7 +171,7 @@ export function SignUp({ onSignUp, onNavigateToSignIn }: SignUpProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="hrName" className="dark:text-gray-200 transition-colors duration-300">HR Manager Full Name</Label>
+            <Label htmlFor="hrName" className="dark:text-gray-200 transition-colors duration-300">HR Manager Full Name <span className="text-red-500">*</span></Label>
             <div className="relative">
               <div className="absolute left-3 top-2.5 text-gray-400 dark:text-gray-500 transition-colors duration-300">
                 <User size={18} />
@@ -189,7 +189,7 @@ export function SignUp({ onSignUp, onNavigateToSignIn }: SignUpProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email" className="dark:text-gray-200 transition-colors duration-300">Work Email</Label>
+            <Label htmlFor="email" className="dark:text-gray-200 transition-colors duration-300">Work Email <span className="text-red-500">*</span></Label>
             <div className="relative">
               <div className="absolute left-3 top-2.5 text-gray-400 dark:text-gray-500 transition-colors duration-300">
                 <Mail size={18} />
@@ -207,7 +207,7 @@ export function SignUp({ onSignUp, onNavigateToSignIn }: SignUpProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="mobile" className="dark:text-gray-200 transition-colors duration-300">WhatsApp Mobile Number</Label>
+            <Label htmlFor="mobile" className="dark:text-gray-200 transition-colors duration-300">Mobile Number <span className="text-red-500">*</span></Label>
             <div className="relative">
               <div className="absolute left-3 top-2.5 text-gray-400 dark:text-gray-500 transition-colors duration-300">
                 <Smartphone size={18} />
@@ -223,7 +223,7 @@ export function SignUp({ onSignUp, onNavigateToSignIn }: SignUpProps) {
               />
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors duration-300">
-              Used for WhatsApp OTP and employee onboarding notifications
+              Used for SMS OTP and employee onboarding notifications
             </p>
           </div>
 

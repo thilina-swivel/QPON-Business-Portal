@@ -18,7 +18,7 @@ const SLIDES = [
     id: 3,
     image: "https://images.unsplash.com/photo-1610548822783-33fb5cb0e3a8?q=80&w=2340&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     title: "Activate in Minutes",
-    description: "No app download needed. Employees receive coupons instantly on WhatsApp the moment you go live."
+    description: "No app download needed. Employees receive coupons instantly via SMS the moment you go live."
   }
 ];
 
