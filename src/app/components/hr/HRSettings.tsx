@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import {
   User, Mail, Phone, Building, MapPin, Edit2, Save, XCircle,
-  Lock, Upload, Globe, Bell, Shield, Crown, Check, ChevronRight,
+  Upload, Globe, Bell, Shield, Crown, Check, ChevronRight,
   Eye, EyeOff, CheckCircle2, AlertCircle, Info, Loader2, Calendar,
   ShieldCheck, AlertTriangle,
 } from 'lucide-react';
@@ -294,16 +294,6 @@ export function HRSettings({ onNavigate, onChangePlan }: HRSettingsProps) {
 
             {/* Action buttons */}
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:ml-auto">
-              {!isEditing && (
-                <Button
-                  variant="outline"
-                  onClick={() => setIsPasswordOpen(true)}
-                  className="w-full sm:w-auto text-xs sm:text-sm text-gray-600 dark:text-gray-200 border-gray-300 dark:border-[#2A2A2A] hover:bg-gray-50 dark:hover:bg-white/10 h-9 sm:h-10 shadow-sm transition-colors duration-300"
-                >
-                  <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2" />
-                  Change Password
-                </Button>
-              )}
               {isEditing ? (
                 <>
                   <Button

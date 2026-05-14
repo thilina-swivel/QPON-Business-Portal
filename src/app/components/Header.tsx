@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Moon, Sun, User, LogOut, Bell } from 'lucide-react';
 import { Button } from './ui/button';
 import {
@@ -9,6 +9,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from './ui/dialog';
 
 interface HeaderProps {
   isDarkMode: boolean;
@@ -28,6 +35,7 @@ export function Header({
   planName
 }: HeaderProps) {
   const [unreadCount] = React.useState(3);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   
   // Sample notifications data - extended for scrolling
   const notifications = [
@@ -98,6 +106,7 @@ export function Header({
   ];
 
   return (
+    <>
     <header className="h-16 bg-white dark:bg-[#0A0A0A] border-b border-gray-200 dark:border-[#2A2A2A] shadow-sm dark:shadow-lg sticky top-0 z-20 hidden lg:flex items-center justify-end px-6 gap-3 transition-colors duration-300">
       {/* Dark/Light Mode Toggle */}
       <Button
@@ -247,8 +256,8 @@ export function Header({
           {onLogout && (
             <>
               <DropdownMenuSeparator className="bg-gray-200 dark:bg-[#2A2A2A]" />
-              <DropdownMenuItem 
-                onClick={onLogout}
+              <DropdownMenuItem
+                onClick={() => setShowLogoutDialog(true)}
                 className="cursor-pointer hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-blue-100"
               >
                 <LogOut className="mr-2 h-4 w-4" />
@@ -259,5 +268,33 @@ export function Header({
         </DropdownMenuContent>
       </DropdownMenu>
     </header>
+
+    <Dialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+      <DialogContent className="sm:max-w-sm bg-white dark:bg-[#141414] border-gray-200 dark:border-[#2A2A2A]">
+        <DialogHeader>
+          <div className="flex items-center gap-3 mb-1">
+            <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center flex-shrink-0">
+              <LogOut className="w-5 h-5 text-red-500" />
+            </div>
+            <DialogTitle className="text-[#0E2250] dark:text-white">Log Out?</DialogTitle>
+          </div>
+        </DialogHeader>
+        <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed py-1">
+          Are you sure you want to log out of your QPON Business Portal account?
+        </p>
+        <DialogFooter className="gap-2 mt-2">
+          <Button variant="outline" onClick={() => setShowLogoutDialog(false)} className="flex-1 text-sm border-gray-300 dark:border-[#2A2A2A] dark:text-white dark:hover:bg-white/10">
+            Cancel
+          </Button>
+          <Button
+            onClick={() => { setShowLogoutDialog(false); onLogout?.(); }}
+            className="flex-1 text-sm bg-red-500 hover:bg-red-600 text-white"
+          >
+            Log Out
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }
