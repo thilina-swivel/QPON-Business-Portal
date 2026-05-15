@@ -263,16 +263,19 @@ export function HRDashboard({ onNavigate }: HRDashboardProps) {
             icon: Users, bg: 'bg-gradient-to-br from-blue-500 to-blue-600', bgLight: 'bg-blue-50',
             border: 'border-l-blue-500',
             label: 'Total Seats', tooltip: 'Total licensed seats across all tiers (Silver + Gold).',
-            value: kpiData.totalSeats.total.toLocaleString(),
+            value: null,
             badge: <div className="flex items-center gap-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-2.5 py-1 rounded-full"><TrendingUp className="w-3 h-3" /><span className="text-xs font-semibold">{activationPct}%</span></div>,
             sub: (
               <>
-                <div className="flex items-center gap-2 mt-3">
-                  <span className="flex items-center gap-1 text-[10px] px-2 py-1 rounded-full bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 font-medium">
-                    <UserCheck className="w-3 h-3" />{kpiData.activated} Activated
+                <div className="flex items-center gap-1.5 flex-nowrap mt-1">
+                  <span className="text-2xl font-bold text-[#0E2250] dark:text-white transition-colors duration-300">{kpiData.totalSeats.total.toLocaleString()}</span>
+                  <span className="text-gray-300 dark:text-gray-600 text-sm">|</span>
+                  <span className="text-[10px] px-2 py-1 rounded-full bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 font-medium whitespace-nowrap">
+                    {kpiData.activated} Activated
                   </span>
-                  <span className="flex items-center gap-1 text-[10px] px-2 py-1 rounded-full bg-orange-100 dark:bg-[#E35000]/20 text-[#E35000] font-semibold ring-1 ring-[#E35000]/30">
-                    <UserX className="w-3 h-3" />{kpiData.pending} Pending
+                  <span className="text-gray-300 dark:text-gray-600 text-sm">|</span>
+                  <span className="text-[10px] px-2 py-1 rounded-full bg-orange-100 dark:bg-[#E35000]/20 text-[#E35000] font-semibold ring-1 ring-[#E35000]/30 whitespace-nowrap">
+                    {kpiData.pending} Pending
                   </span>
                 </div>
                 <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-2 flex items-center gap-1">
@@ -332,7 +335,7 @@ export function HRDashboard({ onNavigate }: HRDashboardProps) {
                   </div>
                 </div>
               </div>
-              <h3 className="text-2xl font-bold text-[#0E2250] dark:text-white transition-colors duration-300">{card.value}</h3>
+              {card.value != null && <h3 className="text-2xl font-bold text-[#0E2250] dark:text-white transition-colors duration-300">{card.value}</h3>}
               {card.sub}
             </CardContent>
           </Card>
