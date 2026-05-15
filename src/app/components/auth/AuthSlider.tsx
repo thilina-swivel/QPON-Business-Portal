@@ -77,7 +77,7 @@ export function AuthSlider() {
                 key={index}
                 onClick={() => setCurrentSlide(index)}
                 className={`h-1.5 rounded-full transition-all duration-300 ${
-                  index === currentSlide ? 'w-8 bg-[#E35000]' : 'w-2 bg-white/30 hover:bg-white/50'
+                  index === currentSlide ? 'w-8 bg-[#C44500]' : 'w-2 bg-white/30 hover:bg-white/50'
                 }`}
               />
             ))}

@@ -240,7 +240,7 @@ export function HRAnalytics({ onNavigate: _onNavigate }: HRAnalyticsProps) {
         <button key={day} onClick={() => handleDateClick(day)}
           onMouseEnter={() => setHoverDate(date)} onMouseLeave={() => setHoverDate(null)}
           className={`h-7 text-xs transition-colors relative ${
-            sel ? 'bg-[#E35000] text-white font-semibold rounded-md z-10'
+            sel ? 'bg-[#C44500] text-white font-semibold rounded-md z-10'
             : inR ? 'bg-orange-50 dark:bg-orange-900/30 text-[#E35000] dark:text-orange-300'
             : tod ? 'font-semibold text-[#E35000] dark:text-orange-400'
             : 'hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-gray-200'
@@ -341,7 +341,7 @@ export function HRAnalytics({ onNavigate: _onNavigate }: HRAnalyticsProps) {
                     <button key={p.value} onClick={() => handlePresetSelect(p.value)}
                       className={`w-full text-left px-2 py-1.5 rounded text-xs transition-colors ${
                         dateRange === p.value && !selectedStartDate
-                          ? 'bg-[#E35000] text-white font-medium'
+                          ? 'bg-[#C44500] text-white font-medium'
                           : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10'
                       }`}
                     >{p.label}</button>
@@ -354,7 +354,7 @@ export function HRAnalytics({ onNavigate: _onNavigate }: HRAnalyticsProps) {
                       onClick={() => { setSelectedStartDate(null); setSelectedEndDate(null); setShowDatePicker(false); }}>
                       Cancel
                     </Button>
-                    <Button className="flex-1 bg-[#E35000] hover:bg-[#c44500] text-white border-none text-xs py-1.5 transition-colors duration-300"
+                    <Button className="flex-1 bg-[#C44500] hover:bg-[#a03800] text-white border-none text-xs py-1.5 transition-colors duration-300"
                       onClick={() => { if (selectedStartDate) { setDateRange('custom'); setShowDatePicker(false); } }}
                       disabled={!selectedStartDate}>
                       Apply
@@ -390,7 +390,7 @@ export function HRAnalytics({ onNavigate: _onNavigate }: HRAnalyticsProps) {
             icon: BarChart3, bg: 'bg-gradient-to-br from-violet-500 to-violet-600', bgLight: 'bg-violet-50',
             border: 'border-l-violet-500',
             label: 'ROI Ratio', tooltip: 'Savings ÷ Cost: for every LKR spent on QPON, employees save this multiple.',
-            value: '3.5:1',
+            value: '3:1',
             badge: <div className="flex items-center gap-0.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full flex-shrink-0"><TrendingUp className="w-2.5 h-2.5 sm:w-3 sm:h-3" /><span className="text-[10px] sm:text-xs font-semibold">ROI</span></div>,
             sub: <p className="text-[10px] sm:text-[11px] text-gray-400 dark:text-gray-500 mt-1 transition-colors duration-300">savings ÷ cost</p>,
           },
@@ -793,7 +793,7 @@ function EmployeeBreakdown() {
                   <div className="flex items-center gap-2">
                     <div className="w-16 h-1.5 rounded-full bg-gray-100 dark:bg-[#2A2A2A] overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-[#E35000]"
+                        className="h-full rounded-full bg-[#C44500]"
                         style={{ width: `${(row.qponsUsed / 30) * 100}%` }}
                       />
                     </div>

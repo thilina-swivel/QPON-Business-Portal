@@ -30,7 +30,7 @@ export function OnboardingGuide({ isOpen, onClose }: OnboardingGuideProps) {
         >
           {/* Welcome Header */}
           <div className="bg-[#0E2250] p-6 text-white text-center relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[#E35000] rounded-full blur-3xl opacity-30 -mr-10 -mt-10" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#C44500] rounded-full blur-3xl opacity-30 -mr-10 -mt-10" />
             <div className="relative z-10">
               <h2 className="text-xl font-bold mb-1">Welcome to QPON Business</h2>
               <p className="text-blue-200 text-xs mx-auto">Set up your business portal and start saving for your team.</p>
@@ -74,7 +74,7 @@ export function OnboardingGuide({ isOpen, onClose }: OnboardingGuideProps) {
 
             <Button
               onClick={onClose}
-              className="w-full bg-[#E35000] hover:bg-[#c44500] text-white shadow-lg shadow-orange-200 dark:shadow-none"
+              className="w-full bg-[#C44500] hover:bg-[#a03800] text-white shadow-lg shadow-orange-200 dark:shadow-none"
             >
               Get Started
             </Button>

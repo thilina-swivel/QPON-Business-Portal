@@ -255,7 +255,7 @@ function TierChangeDialog({ employee, onConfirm, onCancel }: {
         <div className="flex gap-3">
           <Button variant="outline" className="flex-1" onClick={onCancel}>Cancel</Button>
           <Button
-            className="flex-1 bg-[#E35000] hover:bg-[#c44500] text-white border-0"
+            className="flex-1 bg-[#C44500] hover:bg-[#a03800] text-white border-0"
             onClick={() => onConfirm(selected)}
             disabled={direction === 'same'}
           >
@@ -308,7 +308,7 @@ function EmployeeEmptyState({ onAddEmployee, onBulkUpload }: { onAddEmployee: ()
         Add your first employee to get started. You can add them one by one or bulk upload a CSV.
       </p>
       <div className="flex flex-col sm:flex-row gap-3">
-        <Button onClick={onAddEmployee} className="bg-[#E35000] hover:bg-[#c44600] text-white">
+        <Button onClick={onAddEmployee} className="bg-[#C44500] hover:bg-[#c44600] text-white">
           <UserPlus className="w-4 h-4 mr-2" /> Add Employee
         </Button>
         <Button variant="outline" onClick={onBulkUpload}>
@@ -468,7 +468,7 @@ function AddEmployeeForm({ onBack, onSuccess }: { onBack: () => void; onSuccess:
           {/* Actions */}
           <div className="flex gap-3 pt-2">
             <Button variant="outline" onClick={onBack} className="flex-1">Cancel</Button>
-            <Button onClick={handleSubmit} className="flex-1 bg-[#E35000] hover:bg-[#c44600] text-white">Add & Send Link</Button>
+            <Button onClick={handleSubmit} className="flex-1 bg-[#C44500] hover:bg-[#c44600] text-white">Add & Send Link</Button>
           </div>
         </CardContent>
       </Card>
@@ -631,7 +631,7 @@ function BulkUploadScreen({ onBack, onSuccess }: { onBack: () => void; onSuccess
           <div className="flex gap-3">
             <Button variant="outline" onClick={() => setStep('upload')}>Back</Button>
             <Button
-              className="flex-1 bg-[#E35000] hover:bg-[#c44600] text-white"
+              className="flex-1 bg-[#C44500] hover:bg-[#c44600] text-white"
               onClick={() => { setStep('success'); setTimeout(() => onSuccess(validRows.length), 800); }}
               disabled={validRows.length === 0}
             >
@@ -883,7 +883,7 @@ function EmployeeList({ employees, onViewDetail, onRemove, onTierChange, onResen
       onClick={onClick}
       className={cn(
         'w-4 h-4 rounded border-2 flex items-center justify-center cursor-pointer transition-colors flex-shrink-0',
-        checked || indeterminate ? 'bg-[#E35000] border-[#E35000]' : 'border-gray-300 dark:border-gray-600 hover:border-[#E35000]'
+        checked || indeterminate ? 'bg-[#C44500] border-[#E35000]' : 'border-gray-300 dark:border-gray-600 hover:border-[#E35000]'
       )}
     >
       {(checked || indeterminate) && <Check className="w-2.5 h-2.5 text-white" />}
@@ -902,7 +902,7 @@ function EmployeeList({ employees, onViewDetail, onRemove, onTierChange, onResen
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={onBulkUpload}><UploadCloud className="w-3.5 h-3.5 mr-1.5" />Bulk Upload</Button>
-          <Button size="sm" className="bg-[#E35000] hover:bg-[#c44600] text-white" onClick={onAddEmployee}><UserPlus className="w-3.5 h-3.5 mr-1.5" />Add Employee</Button>
+          <Button size="sm" className="bg-[#C44500] hover:bg-[#c44600] text-white" onClick={onAddEmployee}><UserPlus className="w-3.5 h-3.5 mr-1.5" />Add Employee</Button>
         </div>
       </div>
 

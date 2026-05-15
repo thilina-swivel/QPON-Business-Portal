@@ -17,8 +17,7 @@ const PLANS = [
     bronzePerSeat: 750,
     silverPerSeat: 1500,
     goldPerSeat: 2800,
-    annualAvailable: false,
-    features: ['20–200 employees', 'SMS coupon delivery', 'Basic analytics', 'Email support'],
+    annualAvailable: true,
   },
   {
     id: 'growth',
@@ -29,7 +28,6 @@ const PLANS = [
     goldPerSeat: 2400,
     annualAvailable: true,
     popular: true,
-    features: ['200–1,000 employees', 'Priority SMS delivery', 'Full analytics dashboard', 'Dedicated account manager', '2 free months on annual billing'],
   },
   {
     id: 'enterprise',
@@ -39,7 +37,6 @@ const PLANS = [
     silverPerSeat: 1000,
     goldPerSeat: 2000,
     annualAvailable: true,
-    features: ['1,000+ employees', 'Bulk employee import', 'Custom exports & reports', 'SLA-backed support', '2 free months on annual billing'],
   },
 ] as const;
 
@@ -120,7 +117,7 @@ export function PurchaseSetup({ onComplete, onBack }: PurchaseSetupProps) {
             </button>
             <span className="text-gray-300 dark:text-gray-600">—</span>
             <span className="flex items-center gap-1.5 text-[#0E2250] dark:text-white font-semibold">
-              <span className="w-6 h-6 rounded-full bg-[#E35000] text-white text-xs flex items-center justify-center font-bold">2</span>
+              <span className="w-6 h-6 rounded-full bg-[#C44500] text-white text-xs flex items-center justify-center font-bold">2</span>
               <span className="hidden sm:inline">Choose Plan</span>
             </span>
             <span className="text-gray-300 dark:text-gray-600">—</span>
@@ -161,37 +158,36 @@ export function PurchaseSetup({ onComplete, onBack }: PurchaseSetupProps) {
                     onClick={() => handleSelectPlan(p.id)}
                     className={`relative text-left p-4 rounded-xl border-2 transition-all duration-200 ${
                       selectedPlanId === p.id
-                        ? 'border-[#E35000] bg-[#E35000]/5 dark:bg-[#E35000]/10'
+                        ? 'border-[#E35000] bg-[#C44500]/5 dark:bg-[#E35000]/10'
                         : 'border-gray-200 dark:border-[#2A2A2A] hover:border-gray-300 dark:hover:border-[#3A3A3A]'
                     }`}
                   >
                     {'popular' in p && p.popular && (
-                      <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-[#E35000] text-white text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
+                      <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-[#C44500] text-white text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
                         POPULAR
                       </span>
                     )}
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center mb-3 transition-colors duration-200 ${
-                      selectedPlanId === p.id ? 'bg-[#E35000]' : 'bg-gray-100 dark:bg-[#2A2A2A]'
+                      selectedPlanId === p.id ? 'bg-[#C44500]' : 'bg-gray-100 dark:bg-[#2A2A2A]'
                     }`}>
                       {React.createElement(PLAN_ICONS[p.id as keyof typeof PLAN_ICONS], { size: 16, className: selectedPlanId === p.id ? 'text-white' : 'text-gray-500 dark:text-gray-400' })}
                     </div>
                     <p className="font-bold text-[#0E2250] dark:text-white text-sm transition-colors duration-300">{p.name}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 transition-colors duration-300">{p.range} employees</p>
-                    <div className="mt-3 pt-3 border-t border-gray-100 dark:border-[#2A2A2A] transition-colors duration-300">
-                      <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors duration-300">Silver from</p>
-                      <p className="font-bold text-[#E35000] text-sm">
-                        LKR {p.silverPerSeat.toLocaleString()}
-                        <span className="text-xs font-normal text-gray-500">/seat</span>
-                      </p>
-                    </div>
-                    <ul className="mt-3 space-y-1">
-                      {p.features.map(f => (
-                        <li key={f} className="flex items-start gap-1.5 text-xs text-gray-500 dark:text-gray-400 transition-colors duration-300">
-                          <Check size={10} className="text-green-500 mt-0.5 flex-shrink-0" />
-                          {f}
-                        </li>
+                    <div className="mt-3 pt-3 border-t border-gray-100 dark:border-[#2A2A2A] transition-colors duration-300 space-y-1.5">
+                      {[
+                        { label: 'Bronze', price: p.bronzePerSeat, color: 'text-gray-400 dark:text-gray-500' },
+                        { label: 'Silver', price: p.silverPerSeat, color: 'text-gray-400 dark:text-gray-500' },
+                        { label: 'Gold',   price: p.goldPerSeat,   color: 'text-yellow-500 dark:text-yellow-400' },
+                      ].map(({ label, price, color }) => (
+                        <div key={label} className="flex items-center justify-between">
+                          <span className={`text-xs font-semibold ${color}`}>{label}</span>
+                          <span className="text-xs font-bold text-[#0E2250] dark:text-white">
+                            LKR {price.toLocaleString()}<span className="text-[11px] font-normal text-gray-400">/seat</span>
+                          </span>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   </button>
                 ))}
               </div>
@@ -340,12 +336,12 @@ export function PurchaseSetup({ onComplete, onBack }: PurchaseSetupProps) {
                     onClick={() => setPaymentMethod(pm.id)}
                     className={`text-left p-4 rounded-xl border-2 transition-all duration-200 flex items-start gap-3 ${
                       paymentMethod === pm.id
-                        ? 'border-[#E35000] bg-[#E35000]/5 dark:bg-[#E35000]/10'
+                        ? 'border-[#E35000] bg-[#C44500]/5 dark:bg-[#E35000]/10'
                         : 'border-gray-200 dark:border-[#2A2A2A] hover:border-gray-300 dark:hover:border-[#3A3A3A]'
                     }`}
                   >
                     <div className={`p-2 rounded-lg flex-shrink-0 transition-colors duration-200 ${
-                      paymentMethod === pm.id ? 'bg-[#E35000]/10' : 'bg-gray-100 dark:bg-[#2A2A2A]'
+                      paymentMethod === pm.id ? 'bg-[#C44500]/10' : 'bg-gray-100 dark:bg-[#2A2A2A]'
                     }`}>
                       <pm.Icon size={16} className={paymentMethod === pm.id ? 'text-[#E35000]' : 'text-gray-500 dark:text-gray-400'} />
                     </div>
@@ -367,7 +363,7 @@ export function PurchaseSetup({ onComplete, onBack }: PurchaseSetupProps) {
           {/* Right: Order Summary */}
           <div className="lg:col-span-1">
             <div className="sticky top-24 bg-gradient-to-br from-[#0E2250] to-[#1e3a8a] rounded-2xl p-6 text-white overflow-hidden relative">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-[#E35000] rounded-full blur-3xl opacity-20 -mr-10 -mt-10 pointer-events-none" />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-[#C44500] rounded-full blur-3xl opacity-20 -mr-10 -mt-10 pointer-events-none" />
 
               <h2 className="text-base font-bold mb-1 relative z-10">Order Summary</h2>
               <p className="text-blue-300 text-xs mb-5 relative z-10">
@@ -417,7 +413,7 @@ export function PurchaseSetup({ onComplete, onBack }: PurchaseSetupProps) {
               <Button
                 onClick={handleConfirm}
                 disabled={isLoading || (bronzeSeats + silverSeats + goldSeats) === 0}
-                className="w-full mt-6 h-12 bg-[#E35000] hover:bg-[#c44500] text-white font-bold text-base relative z-10 transition-colors duration-200"
+                className="w-full mt-6 h-12 bg-[#C44500] hover:bg-[#a03800] text-white font-bold text-base relative z-10 transition-colors duration-200"
               >
                 {isLoading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />

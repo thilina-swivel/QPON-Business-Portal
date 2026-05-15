@@ -63,7 +63,7 @@ function InfoItem({ icon: Icon, label, value, field, isEditing, onChange, type =
               className={cn('h-8 text-sm flex-1', required && !value ? 'border-red-300 bg-red-50' : '')}
             />
             {verified === false && onVerify && (
-              <Button size="sm" onClick={onVerify} className="bg-[#E35000] hover:bg-[#c44500] text-white text-xs h-8 px-3 shrink-0">
+              <Button size="sm" onClick={onVerify} className="bg-[#C44500] hover:bg-[#a03800] text-white text-xs h-8 px-3 shrink-0">
                 Verify
               </Button>
             )}
@@ -278,7 +278,7 @@ export function HRSettings({ onNavigate, onChangePlan }: HRSettingsProps) {
                   <Button
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="flex-1 sm:flex-none bg-[#E35000] hover:bg-[#c44500] text-white text-xs sm:text-sm h-9 sm:h-10 transition-colors duration-300"
+                    className="flex-1 sm:flex-none bg-[#C44500] hover:bg-[#a03800] text-white text-xs sm:text-sm h-9 sm:h-10 transition-colors duration-300"
                   >
                     {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2" />}
                     {isSaving ? 'Saving…' : 'Save Changes'}
@@ -287,7 +287,7 @@ export function HRSettings({ onNavigate, onChangePlan }: HRSettingsProps) {
               ) : (
                 <Button
                   onClick={() => setIsEditing(true)}
-                  className="w-full sm:w-auto bg-[#0E2250] hover:bg-[#0E2250]/90 dark:bg-[#E35000] dark:hover:bg-[#c44500] text-white text-xs sm:text-sm h-9 sm:h-10 shadow-sm transition-colors duration-300"
+                  className="w-full sm:w-auto bg-[#0E2250] hover:bg-[#0E2250]/90 dark:bg-[#E35000] dark:hover:bg-[#a03800] text-white text-xs sm:text-sm h-9 sm:h-10 shadow-sm transition-colors duration-300"
                 >
                   <Edit2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2" />
                   Edit Profile
@@ -350,7 +350,7 @@ export function HRSettings({ onNavigate, onChangePlan }: HRSettingsProps) {
 
         {/* ── Row 1 right: Subscription — exact Profile.tsx style ── */}
         <Card className="border-none shadow-lg bg-gradient-to-br from-[#0E2250] to-[#1e3a8a] text-white overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-[#E35000] rounded-full blur-3xl opacity-20 -mr-10 -mt-10" />
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[#C44500] rounded-full blur-3xl opacity-20 -mr-10 -mt-10" />
           <CardContent className="p-6 relative z-10">
             <div className="flex justify-between items-start mb-6">
               <div>
@@ -359,7 +359,7 @@ export function HRSettings({ onNavigate, onChangePlan }: HRSettingsProps) {
                   Growth Plan <Crown size={20} className="text-[#E35000] fill-[#E35000]" />
                 </h3>
               </div>
-              <span className="bg-[#E35000] text-white text-[10px] font-bold px-2 py-1 rounded shadow-sm">ACTIVE</span>
+              <span className="bg-[#C44500] text-white text-[10px] font-bold px-2 py-1 rounded shadow-sm">ACTIVE</span>
             </div>
 
             <div className="space-y-3 mb-6">
@@ -495,7 +495,7 @@ export function HRSettings({ onNavigate, onChangePlan }: HRSettingsProps) {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsOtpVerifyOpen(false)} className="text-sm">Cancel</Button>
-            <Button onClick={handleOtpVerifySubmit} className="bg-[#E35000] hover:bg-[#c44500] text-white text-sm">Confirm</Button>
+            <Button onClick={handleOtpVerifySubmit} className="bg-[#C44500] hover:bg-[#a03800] text-white text-sm">Confirm</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -591,7 +591,7 @@ export function HRSettings({ onNavigate, onChangePlan }: HRSettingsProps) {
 
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => { setIsPasswordOpen(false); setIsOtpStep(false); }} className="text-sm">Cancel</Button>
-            <Button onClick={handlePasswordSubmit} className="bg-[#E35000] hover:bg-[#c44500] text-white text-sm">
+            <Button onClick={handlePasswordSubmit} className="bg-[#C44500] hover:bg-[#a03800] text-white text-sm">
               {isOtpStep ? 'Confirm Change' : 'Continue'}
             </Button>
           </DialogFooter>

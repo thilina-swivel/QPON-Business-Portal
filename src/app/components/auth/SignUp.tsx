@@ -106,7 +106,7 @@ export function SignUp({ onSignUp, onNavigateToSignIn }: SignUpProps) {
           <div className="space-y-3 pt-2">
             <Button
               onClick={handleOtpSubmit}
-              className="w-full h-12 bg-[#E35000] hover:bg-[#c44500] text-white font-medium text-base transition-colors duration-300"
+              className="w-full h-12 bg-[#C44500] hover:bg-[#a03800] text-white font-medium text-base transition-colors duration-300"
               disabled={isLoading || otpValue.length < 6}
             >
               {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Verify & Create Account'}
@@ -229,7 +229,7 @@ export function SignUp({ onSignUp, onNavigateToSignIn }: SignUpProps) {
 
           <Button
             type="submit"
-            className="w-full h-12 bg-[#0E2250] hover:bg-[#0E2250]/90 dark:bg-[#E35000] dark:hover:bg-[#c44500] text-white font-medium text-base mt-2 transition-colors duration-300"
+            className="w-full h-12 bg-[#0E2250] hover:bg-[#0E2250]/90 dark:bg-[#E35000] dark:hover:bg-[#a03800] text-white font-medium text-base mt-2 transition-colors duration-300"
             disabled={isLoading}
           >
             {isLoading ? (

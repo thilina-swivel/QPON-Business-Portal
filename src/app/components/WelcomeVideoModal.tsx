@@ -288,7 +288,7 @@ export function WelcomeVideoModal({ isOpen, onClose }: WelcomeVideoModalProps) {
               className="absolute inset-0 flex items-center justify-center bg-black/30 cursor-pointer z-10"
               onClick={handlePlayPause}
             >
-              <div className="w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center rounded-full bg-[#E35000] hover:bg-[#c44500] transition-all shadow-2xl hover:shadow-[0_0_30px_rgba(227,80,0,0.5)]">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center rounded-full bg-[#C44500] hover:bg-[#a03800] transition-all shadow-2xl hover:shadow-[0_0_30px_rgba(227,80,0,0.5)]">
                 <Play size={24} className="sm:w-8 sm:h-8 text-white ml-1" fill="white" />
               </div>
             </div>
@@ -386,7 +386,7 @@ export function WelcomeVideoModal({ isOpen, onClose }: WelcomeVideoModalProps) {
             
             <Button
               onClick={onClose}
-              className="h-9 px-4 text-sm bg-[#E35000] hover:bg-[#c44500] text-white w-full sm:w-auto order-1 sm:order-2"
+              className="h-9 px-4 text-sm bg-[#C44500] hover:bg-[#a03800] text-white w-full sm:w-auto order-1 sm:order-2"
             >
               Continue to Dashboard
             </Button>

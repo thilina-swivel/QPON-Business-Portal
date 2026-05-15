@@ -27,7 +27,7 @@ const kpiData = {
   avgSaving: 4421,
   cost: 510000,
   ratioSavings: 1785000,
-  ratio: 3.5,
+  ratio: 3,
 };
 
 const activityFeed = [
@@ -193,7 +193,7 @@ function HRDashboardEmpty({ onNavigate }: { onNavigate?: (v: string) => void }) 
 
           <button
             onClick={() => onNavigate?.('hr-employees')}
-            className="flex items-center gap-2 px-6 py-3 bg-[#E35000] hover:bg-[#c44500] text-white rounded-lg transition-all text-sm font-medium shadow-lg shadow-orange-500/20"
+            className="flex items-center gap-2 px-6 py-3 bg-[#C44500] hover:bg-[#a03800] text-white rounded-lg transition-all text-sm font-medium shadow-lg shadow-orange-500/20"
           >
             <Users className="w-4 h-4" />
             Add Employees to Get Started
@@ -359,7 +359,7 @@ export function HRDashboard({ onNavigate }: HRDashboardProps) {
               <span className="text-xs text-gray-500 dark:text-gray-400">
                 <span className="font-semibold text-[#E35000]">{kpiData.pending} pending</span>
               </span>
-              <button className="flex items-center gap-1.5 text-xs font-semibold text-white bg-[#E35000] hover:bg-[#c44500] px-3 py-1.5 rounded-lg transition-colors shadow-sm">
+              <button className="flex items-center gap-1.5 text-xs font-semibold text-white bg-[#C44500] hover:bg-[#a03800] px-3 py-1.5 rounded-lg transition-colors shadow-sm">
                 <Send className="w-3 h-3" />Resend {kpiData.pending} links
               </button>
             </div>
@@ -442,7 +442,7 @@ export function HRDashboard({ onNavigate }: HRDashboardProps) {
               <div className="space-y-2">
                 <button
                   onClick={() => onNavigate?.('hr-employees')}
-                  className="w-full flex items-center gap-2 px-3 py-2 bg-[#E35000] hover:bg-[#c44500] text-white rounded-lg transition-all text-sm"
+                  className="w-full flex items-center gap-2 px-3 py-2 bg-[#C44500] hover:bg-[#a03800] text-white rounded-lg transition-all text-sm"
                 >
                   <Users className="w-4 h-4" />
                   <span>Add Employees</span>

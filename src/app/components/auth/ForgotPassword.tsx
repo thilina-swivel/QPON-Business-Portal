@@ -148,7 +148,7 @@ export function ForgotPassword({ onNavigateToSignIn }: ForgotPasswordProps) {
 
               <Button 
                 type="submit"
-                className="w-full h-12 bg-[#0E2250] hover:bg-[#0E2250]/90 dark:bg-[#E35000] dark:hover:bg-[#c44500] text-white font-medium text-base transition-colors duration-300"
+                className="w-full h-12 bg-[#0E2250] hover:bg-[#0E2250]/90 dark:bg-[#E35000] dark:hover:bg-[#a03800] text-white font-medium text-base transition-colors duration-300"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -231,7 +231,7 @@ export function ForgotPassword({ onNavigateToSignIn }: ForgotPasswordProps) {
 
               <Button 
                 type="submit"
-                className="w-full h-12 bg-[#0E2250] hover:bg-[#0E2250]/90 dark:bg-[#E35000] dark:hover:bg-[#c44500] text-white font-medium text-base transition-colors duration-300"
+                className="w-full h-12 bg-[#0E2250] hover:bg-[#0E2250]/90 dark:bg-[#E35000] dark:hover:bg-[#a03800] text-white font-medium text-base transition-colors duration-300"
                 disabled={isLoading || otp.length !== 6}
               >
                 {isLoading ? (
@@ -285,7 +285,7 @@ export function ForgotPassword({ onNavigateToSignIn }: ForgotPasswordProps) {
 
               <Button 
                 type="submit"
-                className="w-full h-12 bg-[#0E2250] hover:bg-[#0E2250]/90 dark:bg-[#E35000] dark:hover:bg-[#c44500] text-white font-medium text-base transition-colors duration-300"
+                className="w-full h-12 bg-[#0E2250] hover:bg-[#0E2250]/90 dark:bg-[#E35000] dark:hover:bg-[#a03800] text-white font-medium text-base transition-colors duration-300"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -320,7 +320,7 @@ export function ForgotPassword({ onNavigateToSignIn }: ForgotPasswordProps) {
 
             <Button 
               onClick={onNavigateToSignIn}
-              className="w-full h-12 bg-[#0E2250] hover:bg-[#0E2250]/90 dark:bg-[#E35000] dark:hover:bg-[#c44500] text-white font-medium text-base transition-colors duration-300"
+              className="w-full h-12 bg-[#0E2250] hover:bg-[#0E2250]/90 dark:bg-[#E35000] dark:hover:bg-[#a03800] text-white font-medium text-base transition-colors duration-300"
             >
               Back to Sign In <ArrowRight size={18} className="ml-2" />
             </Button>
