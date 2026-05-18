@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, Crown, ArrowRight, ArrowLeft, Loader2, CreditCard, Zap, Building } from 'lucide-react';
+import { Check, Crown, ArrowRight, ArrowLeft, Loader2, CreditCard, Landmark, Zap, Building } from 'lucide-react';
 import { Button } from '../ui/button';
 import { toast } from 'sonner@2.0.3';
 import logoImage from '../../../assets/logo.png';
@@ -50,6 +50,7 @@ const PLAN_ICONS = {
 
 const PAYMENT_METHODS = [
   { id: 'card', label: 'Credit / Debit Card', description: 'Pay online instantly', gatewayNote: 'Processed via Gene Payment Gateway', Icon: CreditCard },
+  { id: 'bank_transfer', label: 'Bank Transfer', description: 'Company Invoice', gatewayNote: 'Invoice sent within 1 business day', Icon: Landmark },
 ];
 
 export function PurchaseSetup({ onComplete, onBack }: PurchaseSetupProps) {
